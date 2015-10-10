@@ -135,12 +135,24 @@ B <
 
 <pre>"Hello world!"(O).</pre>
 
+`"Hello world!"` is pushed onto the stack in reverse order, then `(O)` repeatedly prints the top of stack until it's empty.
+
 ###Collatz sequence (one line)
 
 <pre>ndN(d2%,7@)Nd+1*3b2:dNd1=?).</pre>
+
+`ndN` takes the input and duplicates it so it can be output.
+
+`(d2%,7@       b` starts a while loop with `[n]` as the stack. It is duplicated and modded by 2. This is inverted and then seven characters are skipped with `7@`, landing it squarely on the `b`. In effect, the program counter moves right if the top of stack is odd, left if it's even.
+
+`)Nd+1*3` multiplies the top of stack by three, then adds one, and outputs it (duplicated beforehand). The `)` closes the loop.
+
+`2:dNd1=?).` divides the top of stack by two and outputs it. Then it is checked to see if it's equal to `1`. If so, then the conditional trampoline `?` jumps the program counter over the closing `)` and onto the `.`, where it terminates. Otherwise, it just goes back to the start of the loop.
 
 ###Collatz sequence (three lines)
 
 <pre>ndN(d2%,B
 ?=1dNd:2<.)
  )Nd+1*3<</pre>
+
+This one works very similarly to the one above. The biggest difference is that the T-branch `B` is used, which directs the program counter either up or down. The toroidal nature of the program space means that the third line is executed when the top of stack is odd.
