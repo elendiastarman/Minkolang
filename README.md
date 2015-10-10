@@ -85,23 +85,19 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 
 One significant feature that sets Minkolang apart from Befunge and ><> is that it has loops. Both for loops and while loops.
 
-##Loops
+###Loops
 
 All loops have their own stack, which may have any number of elements from the parent stack (either the main program or a parent loop). Now, very interestingly, the loop's closing brace can be anywhere. When a closing brace is reached, the program counter is relocated to the opening brace and the direction is reset to what it was when the loop was entered.
 
-###Types of loops:
-
-- For loop `[]`: Pops the top of the stack (`n`) and repeats the loop's contents `n` times.
-- While loop (take it all) `()`: The parent's whole stack is used to populate this loop's stack. Loops until stack is empty or top of stack is 0.
-- While loop (n items) `{}`: Pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
+- **For loop** `[]`: Pops the top of the stack (`n`) and repeats the loop's contents `n` times.
+- **While loop** (take it all) `()`: The parent's whole stack is used to populate this loop's stack. Loops until stack is empty or top of stack is 0.
+- **While loop** (n elements) `{}`: Pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
 
 ---
 
-##Branches
+###Branches
 
 Another interesting thing about Minkolang is its branches. There are two kinds of branches: straight branches (`b`) and T branches (`B`). Both kinds pop the top of the stack off and check to see if it's zero.
-
-###Diagrams
 
 - **Straight branch** `b`: a non-zero input will continue on in the same direction whereas a zero input will reverse direction.
 
