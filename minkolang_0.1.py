@@ -3,7 +3,7 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "helloworld.mkl"]
+    sys.argv = ["minkolang_0.1.py", "helloworld_shifted.mkl"]
     debug = 1
 
 if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
@@ -66,6 +66,8 @@ class Program:
 
             if self.currChar not in "'\"":
                 if not self.strMode and not self.numMode:
+                    stack = self.loops[-1][3] if self.loops else self.stack
+                    
                     if self.currChar == ".": #stop execution
                         return
                     
@@ -73,14 +75,38 @@ class Program:
                         movedir = "fall"
                     elif self.currChar in "v<>^":
                         movedir = {"v":"down","<":"left",">":"right","^":"up"}[self.currChar]
+
+                    elif self.currChar in "0123456789":
+                        stack.append(int(self.currChar))
+
+                    elif self.currChar in "+-*:;":
+                        if len(stack) < 2:
+                            stack = [0]*(2-len(stack)) + stack
+
+                        b = stack.pop()
+                        a = stack.pop()
                         
-                    elif self.currChar in "NO":
-                        if len(self.loops):
-                            tos = self.loops[-1][3].pop()
-                            if debug: print(tos, self.loops[-1][3])
-                        else:
-                            tos = self.stack.pop()
+                        if self.currChar == "+":
+                            stack.append(a+b)
+                        elif self.currChar == "-":
+                            stack.append(a-b)
+                        elif self.currChar == "*":
+                            stack.append(a*b)
+                        elif self.currChar == ":":
+                            stack.append(a//b)
+                        elif self.currChar == ";":
+                            stack.append(a**b)
+
+                        if debug: print(stack)
                             
+                    elif self.currChar in "NO":
+##                        if len(self.loops):
+##                            tos = self.loops[-1][3].pop()
+##                            if debug: print(tos, self.loops[-1][3])
+##                        else:
+##                            tos = self.stack.pop()
+                        tos = stack.pop()
+                        
                         if self.currChar == "N":
                             print(tos, end='', flush=True)
                         elif self.currChar == "O":
@@ -88,11 +114,6 @@ class Program:
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
-                            if self.loops:
-                                stack = self.loops[-1][3]
-                            else:
-                                stack = self.stack
-                                
                             self.loops.append(["while",
                                                self.position,
                                                self.velocity,
@@ -112,7 +133,7 @@ class Program:
                                 movedir = "teleport"
                                 arg2 = self.loops[-1][1:3]
                                 if debug: print(self.loops[-1][3])
-                                
+
                     else:
                         pass
                 else:
