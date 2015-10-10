@@ -1,0 +1,9 @@
+Hello world:
+"Hello world!"(O).
+
+Collatz sequence:
+ndN(d2%5@)Nd;2b13*+dNd4=?).
+
+FizzBuzz:
+455**
+'100'[d?]d3%d6&"Fizz"0g5%6&"Buzz"+2&N]x(O)]
