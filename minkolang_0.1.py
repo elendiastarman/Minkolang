@@ -5,6 +5,7 @@ debug = 0
 if "idlelib" in sys.modules:
     sys.argv = ["minkolang_0.1.py", "collatz.mkl", "13"]
     debug = 1
+    numSteps = 150
 
 if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
 if len(sys.argv) == 2: sys.argv.append("")
@@ -82,7 +83,7 @@ class Program:
                     elif self.currChar in "0123456789":
                         stack.append(int(self.currChar))
 
-                    elif self.currChar in "+-*:;%":
+                    elif self.currChar in "+-*:;%=`": #operators and comparators
                         if len(stack) < 2:
                             stack = [0]*(2-len(stack)) + stack
 
@@ -101,8 +102,39 @@ class Program:
                             stack.append(a**b)
                         elif self.currChar == "%":
                             stack.append(a%b)
+                        elif self.currChar == "=":
+                            stack.append(a==b)
+                        elif self.currChar == "`":
+                            stack.append(a>b)
 
-                        if debug: print(stack)
+##                        if debug: print(stack)
+
+                    elif self.currChar in "~,": #negation and not
+                        if len(stack) < 1:
+                            stack = [0]*(1-len(stack)) + stack
+
+                        b = stack.pop()
+
+                        if self.currChar == "~":
+                            stack.append(-b)
+                        elif self.currChar == ",":
+                            stack.append(not b)
+
+                    elif self.currChar in "!?@&":
+                        if self.currChar == "!":
+                            movedir = "jump"
+                            arg2 = 1
+                        else:
+                            s = stack.pop() if stack else 0
+                            if self.currChar == "?" and s:
+                                movedir = "jump"
+                                arg2 = 1
+                            elif self.currChar == "@":
+                                movedir = "jump"
+                                arg2 = s
+                            elif self.currChar == "&" and s:
+                                movedir = "jump"
+                                arg2 = stack.pop()
 
                     elif self.currChar in "no": #input
                         if self.currChar == "n":
@@ -110,7 +142,7 @@ class Program:
                             while self.inputStr[beg].isalpha(): beg += 1
                             
                             end = beg+1
-                            while end < len(self.inputStr) and self.inputStr[beg:end].isdecimal(): end += 1
+                            while end <= len(self.inputStr) and self.inputStr[beg:end].isdecimal(): end += 1
 
                             stack.append(int(self.inputStr[beg:end-1]))
                             self.inputStr = self.inputStr[end-1:]
@@ -119,19 +151,32 @@ class Program:
                             self.inputStr = self.inputStr[1:]
                             
                     elif self.currChar in "NO": #output
-                        tos = stack.pop()
+                        tos = stack.pop() if stack else 0
                         
                         if self.currChar == "N":
                             print(tos, end=' ', flush=True)
                         elif self.currChar == "O":
                             print(chr(tos), end='', flush=True)
 
-                    elif self.currChar in "dD":
+                    elif self.currChar in "dD": #duplication
+                        if not stack: stack = [0]
+                        
                         if self.currChar == "d":
                             stack.append(stack[-1])
                         elif self.currChar == "D":
+                            if len(stack) < 2: stack.append(0)
+                            
                             n = stack.pop()-1
                             stack.extend([stack[-1]]*n)
+
+                    elif self.currChar in "bB": #branches
+                        tos = stack.pop() if stack else 0
+                        
+                        if self.currChar == "b":
+                            if not tos: self.velocity = [-v for v in self.velocity]
+                        if self.currChar == "B":
+                            self.velocity = [self.velocity[1],self.velocity[0],self.velocity[2]]
+                            if not tos: self.velocity = [-v for v in self.velocity]
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
@@ -171,19 +216,25 @@ class Program:
         if debug: print("Current character:",self.currChar)
 
     def move(self, direction="", arg2=None):
+        from math import copysign
+
+##        if debug: print("Old velocity:",self.velocity)
         if direction == "fall": self.velocity = [0,0,1]
         if direction == "down": self.velocity = [0,1,0]
         if direction == "left": self.velocity = [-1,0,0]
         if direction == "right": self.velocity = [1,0,0]
         if direction == "up": self.velocity = [0,-1,0]
-        if direction == "jump": self.velocity = [arg2*v for v in self.velocity]
+        if direction == "jump": self.velocity = [(arg2+1)*v for v in self.velocity]
+##        if debug: print("New velocity:",self.velocity)
 
         if direction == "teleport":
             self.position, self.velocity = arg2
-##        else:
-        self.position = [a+b for a,b in zip(self.position, self.velocity)]
+
 ##        if debug: print("Old position:",self.position)
-            
+        self.position = [a+b for a,b in zip(self.position, self.velocity)]
+##        if debug: print("New position:",self.position)
+
+        
         for i in range(3):
             while self.position[i] < self.bounds[i][0]:
                 self.position[i] += (self.bounds[i][1]-self.bounds[i][0])
@@ -192,7 +243,7 @@ class Program:
 ##        if debug: print("New position:",self.position)
 
         if direction == "jump":
-            self.velocity = [math.copysign(1,v) for v in self.velocity] #resets after a jump
+            self.velocity = [bool(v)*int(copysign(1,v)) for v in self.velocity] #resets after a jump
 
     def push(self, L):
         if type(L) == list:
@@ -204,7 +255,7 @@ class Program:
 
 if debug:
     prog = Program(file, sys.argv[2], debugFlag=1)
-    prog.run(20)
+    prog.run(numSteps)
 
 else:
     Program(file, sys.argv[2]).run()
