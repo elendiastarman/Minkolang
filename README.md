@@ -88,7 +88,7 @@ B <
 - `"..."` String literal. Minkolang is smart enough to reverse this before pushing on the stack.
 - `'...'` Number literal. Does the work of multiplying by 10 and adding the next digit.
 - `+ - * : ; % ~` Add, subtract, multiply, divide (integer division), power (exponent), modulus, negation.
-- `= \` ,` Equality, greater-than (pops `b`,`a`, then pushes `a>b`), and not.
+- `= ``` ,` Equality, greater-than (pops `b`,`a`, then pushes `a>b`), and not.
 - `#` Net; stops the program counter from moving through time (it's a no-op).
 - `! ? @ &` Trampolines. `! ?` jump one character (`?` jumps if the top of stack is non-zero); `@ &` pop `n` from top of stack and jump `n` characters (`&` is conditional, like `?`).
 - `o O` Input/output character.
