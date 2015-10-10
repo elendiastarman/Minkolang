@@ -5,6 +5,8 @@ This language was inspired by [Befunge](http://esolangs.org/wiki/Befunge) and [>
 
 Minkolang is stack-based like many esolangs, though it only has one stack, like Befunge and unlike ><>. It *also* has an array where data can be stored, or data can be stored by altering the program's code. Yes, Minkolang too is capable of self-modification.
 
+---
+
 One significant feature that sets Minkolang apart from Befunge and ><> is that it has loops. Both for loops and while loops.
 
 ##Loops
@@ -16,6 +18,64 @@ All loops have their own stack, which may have any number of items from the pare
 - For loop `[]`: Pops the top of the stack (`n`) and repeats the loop's contents `n` times.
 - While loop (take it all) `()`: The parent's whole stack is used to populate this loop's stack. Loops until stack is empty or top of stack is 0.
 - While loop (n items) `{}`: Pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
+
+---
+
+##Branches
+
+Another interesting thing about Minkolang is its branches. There are two kinds of branches: straight branches (`b`) and T branches (`B`). Both kinds pop the top of the stack off and check to see if it's zero.
+
+###Diagrams
+
+- **Straight branch** `b`: a non-zero input will continue on in the same direction whereas a zero input will reverse direction.
+
+    > 0b1
+    
+    -
+    
+    1b0 <
+    
+    -
+    
+    v
+    
+    0
+    b
+    1
+    
+    -
+    
+    1
+    b
+    0
+    
+    ^
+
+- **T branch** `B`: a non-zero input will bend to the right (clockwise) whereas a zero input will bend to the left (counter-clockwise).
+
+      0
+    > B
+      1
+    
+    -
+    
+     v
+     
+    1B0
+    
+    -
+    
+    1
+    B <
+    0
+    
+    -
+    
+    0B1
+    
+     ^
+
+---
 
 ##Instructions
 
