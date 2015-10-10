@@ -167,7 +167,7 @@ B <
 
 `ndN` takes the input and duplicates it so it can be output.
 
-`(d2%,7@       b` starts a while loop with `[n]` as the stack. It is duplicated and modded by 2. This is inverted and then seven characters are skipped with `7@`, landing it squarely on the `b`. In effect, the program counter moves right if the top of stack is odd, left if it's even.
+`(d2%,7@.......b` starts a while loop with `[n]` as the stack. It is duplicated and modded by 2. This is inverted and then seven characters are skipped with `7@`, landing it squarely on the `b`. In effect, the program counter moves right if the top of stack is odd, left if it's even.
 
 `)Nd+1*3` multiplies the top of stack by three, then adds one, and outputs it (duplicated beforehand). The `)` closes the loop.
 
