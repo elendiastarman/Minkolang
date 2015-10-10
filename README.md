@@ -3,7 +3,7 @@ The Minkowskian (2+1)D semi-golfing language!
 
 This language was inspired by [Befunge](http://esolangs.org/wiki/Befunge) and [><>](http://esolangs.org/wiki/Fish), both of which are stack-based 2D programming languages. It is a (2+1)D Minkowskian language, meaning that it has two dimensions of space and one dimension of time. When the program counter is not moving through space, it is moving through time (the layers of the program). The program space is toroidal in all directions, meaning that if the program counter moves outside of the program's boundary in spacetime, then it will relocate to the opposite side.
 
-Minkolang is stack-based like many esolangs, though it only has one stack, like Befunge and unlike ><>. It *also* has an array where data can be stored, or data can be stored by altering the program's code. Yes, Minkolang too is capable of self-modification.
+Minkolang is stack-based like many esolangs, which has an infinite well of `0`s, though it only has one stack, like Befunge and unlike ><>. It *also* has an array where data can be stored, or data can be stored by altering the program's code. Yes, Minkolang too is capable of self-modification.
 
 ---
 
@@ -11,7 +11,7 @@ One significant feature that sets Minkolang apart from Befunge and ><> is that i
 
 ##Loops
 
-All loops have their own stack, which may have any number of items from the parent stack (either the main program or a parent loop). Now, very interestingly, the loop's closing brace can be anywhere. When a closing brace is reached, the program counter is relocated to the opening brace and the direction is reset to what it was when the loop was entered.
+All loops have their own stack, which may have any number of elements from the parent stack (either the main program or a parent loop). Now, very interestingly, the loop's closing brace can be anywhere. When a closing brace is reached, the program counter is relocated to the opening brace and the direction is reset to what it was when the loop was entered.
 
 ###Types of loops:
 
@@ -81,17 +81,36 @@ B <
 
 ###Implemented
 
-- `v<>^` Changes the direction of the program counter.
+- `v < > ^` Changes the direction of the program counter.
 - `<space>` Lets the program counter move through time (fall to the next layer).
+- `.` Terminates program.
 - `0...9` Pushes the corresponding digit onto the stack.
 - `"..."` String literal. Minkolang is smart enough to reverse this before pushing on the stack.
 - `'...'` Number literal. Does the work of multiplying by 10 and adding the next digit.
+- `+ - * : ; % ~` Add, subtract, multiply, divide (integer division), power (exponent), modulus, negation.
+- `= `<code>`</code> ,` Equality, greater-than, and not.
+- `#` Net; stops the program counter from moving through time (it's a no-op).
+- `! ? @ &` Trampolines. `! ?` jump one character (`?` jumps if the top of stack is non-zero); `@ &` pop `n` from top of stack and jump `n` characters (`&` is conditional, like `?`).
+- `o O` Input/output character.
+- `n N` Input/output number. (`n` dumps non-digits from the input until an integer is found. This is how [this Befunge interpreter](http://www.quirkster.com/iano/js/befunge.html) works.)
+- `b B` Straight, T branches.
+- `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
+- `( )` While loop; takes all of parent's stack.
 
 ###To implement
 
 - `V` Boost; enables the program counter to cross any number of spaces.
 - `/\|_` Mirrors. They act like you would expect.
-- `
+- `w W` Wormholes; they allow you to jump to any point in the code. `w` pops `y`,`x` off the stack and jumps to `(x,y)` whereas `W` pops `t`,`y`,`x` off the stack and jumps to `(x,y,t)`.
+- `g G` Stack index/insert. `g` pops `n` and gets the stack's `n`th element and puts it on top of stack. `G` pops `n`,`x` and inserts `x` at the `n`-th position (zero-indexed).
+- `a A` Array get/put. `a` pops `y`,`x` and puts `Array[y][x]` on top of stack. `A` pops `k`,`y`,`x` and writes `k` to `Array[y][x]`.
+- `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
+- `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
+- `[ ]` For loop. Pops `n` and repeats `n` times.
+- `{ }` While loop; takes top `n` elements of parent's stack.
+- `r R` Reverse and rotate stack. `R` pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
+- `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
+- `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
 
 ##Example programs
 
