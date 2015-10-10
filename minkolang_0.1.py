@@ -3,24 +3,27 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "helloworld_shifted.mkl"]
+    sys.argv = ["minkolang_0.1.py", "collatz.mkl", "13"]
     debug = 1
 
 if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
+if len(sys.argv) == 2: sys.argv.append("")
 
 ##print(sys.argv)
 ##print(os.curdir, os.getcwd())
 
-files = [open(fname).read() for fname in sys.argv[1:]]
+file = open(sys.argv[1]).read()
 
 class Program:
     global debug
-    def __init__(self, code, debugFlag=0):
+    def __init__(self, code, inputStr="", debugFlag=0):
         global debug
         debug = debugFlag
         
         self.code = [ [list(s) for s in code.split("\n")] ]
-        if debug: print(self.code)
+        if debug: print("Code:",self.code)
+        self.inputStr = inputStr
+        if debug: print("Input:",self.inputStr)
 
         self.position = [0,0,0] #[x,y,z]
         self.velocity = [1,0,0] #[dx,dy,dz]
@@ -79,7 +82,7 @@ class Program:
                     elif self.currChar in "0123456789":
                         stack.append(int(self.currChar))
 
-                    elif self.currChar in "+-*:;":
+                    elif self.currChar in "+-*:;%":
                         if len(stack) < 2:
                             stack = [0]*(2-len(stack)) + stack
 
@@ -96,21 +99,39 @@ class Program:
                             stack.append(a//b)
                         elif self.currChar == ";":
                             stack.append(a**b)
+                        elif self.currChar == "%":
+                            stack.append(a%b)
 
                         if debug: print(stack)
+
+                    elif self.currChar in "no": #input
+                        if self.currChar == "n":
+                            beg = 0
+                            while self.inputStr[beg].isalpha(): beg += 1
                             
-                    elif self.currChar in "NO":
-##                        if len(self.loops):
-##                            tos = self.loops[-1][3].pop()
-##                            if debug: print(tos, self.loops[-1][3])
-##                        else:
-##                            tos = self.stack.pop()
+                            end = beg+1
+                            while end < len(self.inputStr) and self.inputStr[beg:end].isdecimal(): end += 1
+
+                            stack.append(int(self.inputStr[beg:end-1]))
+                            self.inputStr = self.inputStr[end-1:]
+                        elif self.currChar == "o":
+                            stack.append(ord(self.inputStr[0]))
+                            self.inputStr = self.inputStr[1:]
+                            
+                    elif self.currChar in "NO": #output
                         tos = stack.pop()
                         
                         if self.currChar == "N":
-                            print(tos, end='', flush=True)
+                            print(tos, end=' ', flush=True)
                         elif self.currChar == "O":
                             print(chr(tos), end='', flush=True)
+
+                    elif self.currChar in "dD":
+                        if self.currChar == "d":
+                            stack.append(stack[-1])
+                        elif self.currChar == "D":
+                            n = stack.pop()-1
+                            stack.extend([stack[-1]]*n)
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
@@ -137,12 +158,12 @@ class Program:
                     else:
                         pass
                 else:
-    ##                if debug: print(self.strMode,self.numMode)
                     if self.strMode:
                         self.strLiteral += self.currChar
                     elif self.numMode:
                         self.numLiteral = 10*self.numLiteral + int(self.currChar)
 
+            if debug: print(stack)
             self.move(movedir, arg2)
 
     def getCurrent(self):
@@ -182,9 +203,9 @@ class Program:
             self.stack.append(L)
 
 if debug:
-    prog = Program(files[0], 1)
+    prog = Program(file, sys.argv[2], debugFlag=1)
     prog.run(20)
 
 else:
-    Program(files[0]).run()
+    Program(file, sys.argv[2]).run()
     print()
