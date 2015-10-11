@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.2
+##Current version: 0.3
 
 - [Introduction](#introduction)
 - [How To](#how-to)
@@ -47,8 +47,10 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `b B` Straight, T branches.
 - `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
 - `i` Gets loop's counter (0-based) and pushes it onto the stack.
+- `r` Reverses stack.
 - `( )` While loop; takes all of parent's stack unless `$` is used right beforehand, in which case it pops `n` and puts that number of the parent stack's elements in the loop's stack.
 - `[ ]` For loop. Pops `n` and repeats body `n` times.
+- `{ }` Recursion.
 - `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
 
 ###To implement
@@ -59,8 +61,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `a A` Array get/put. `a` pops `y`,`x` and puts `Array[y][x]` on top of stack. `A` pops `k`,`y`,`x` and writes `k` to `Array[y][x]`.
 - `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
 - `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
-- `{ }` Recursion.
-- `r R` Reverse and rotate stack. `R` pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
+- `R` Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
 
 ###Unassigned:
@@ -176,3 +177,21 @@ B <
  )Nd+1*3<</pre>
 
 This one works very similarly to the one above. The biggest difference is that the T-branch `B` is used, which directs the program counter either up or down. The toroidal nature of the program space means that the third line is executed when the top of stack is odd.
+
+###Fibonacci sequence (recursion)
+
+This (horribly inefficient) way of calculating the Fibonacci sequence uses its recursive definition: F(n) = F(n-1) + F(n-2) where F(0) = 0 and F(1) = 1.
+
+<pre>n1{d1`,9&d1-{r2-{+}N.</pre>
+
+`n` takes an integer in input, then the recursive function is initialized with `1{`. The `1` here specifies that the function takes one argument.
+
+`d1```,9&` looks to see if the top of stack is <= 1. If it is, then it jumps to the closing `}`, which effectively "returns" from the function. This is the base case - where the input is 0 or 1, so F(0 or 1) is the same.
+
+If the top of stack is *not* 0 or 1, then the trampoline is not taken. Hence, `d1-{` is executed, which duplicates the top of stack, subtracts 1, and runs the function on it. This is the F(n-1) part.
+
+Once that returns, `r2-{` is executed. This reverses the stack so input is now in front. Then two is subtracted and the function is run again with it as input. This is the F(n-2) part.
+
+Once *that* returns, then finally, the two values are added together and returned with `+}`. This is the F(n-1) + F(n-2) part.
+
+At the ultimate conclusion (i.e., when F(n) has been calculated), `N.` outputs F(n) as an integer and exits.
