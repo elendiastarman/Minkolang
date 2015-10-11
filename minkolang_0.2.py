@@ -3,7 +3,7 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "collatz_bent.mkl", "13"]
+    sys.argv = ["minkolang_0.1.py", "boost_test.mkl", "5"]
     debug = 1
     numSteps = 150
 
@@ -40,6 +40,8 @@ class Program:
         self.numMode = 0
         
         self.fallable = 1
+        self.toggleFlag = 0
+        
         self.bounds = [[0,max(map(len,self.code[0]))],
                        [0,len(self.code[0])],
                        [0,0]]
@@ -52,28 +54,38 @@ class Program:
             self.getCurrent()
             movedir = ""
             arg2 = None
+            stack = self.loops[-1][3] if self.loops else self.stack
 
             if self.currChar == '"':
                 self.fallable = not self.fallable
                 self.strMode = not self.strMode
 
                 if not self.strMode:
-                    self.push(self.strLiteral)
+##                    self.push(self.strLiteral)
+                    stack.extend(list(map(ord,self.strLiteral[::-1])))
                     self.strLiteral = ""
             if self.currChar == "'":
                 self.fallable = not self.fallable
                 self.numMode = not self.numMode
 
                 if not self.numMode:
-                    self.push(self.numLiteral)
+##                    self.push(self.numLiteral)
+                    stack.append(self.numLiteral)
                     self.numLiteral = 0
 
             if self.currChar not in "'\"":
                 if not self.strMode and not self.numMode:
-                    stack = self.loops[-1][3] if self.loops else self.stack
+
+                    if self.currChar != " " and not self.fallable: self.fallable = 1
                     
                     if self.currChar == ".": #stop execution
                         return
+                    elif self.currChar == "$": #toggle functionality
+                        self.toggleFlag = 1
+                    elif self.currChar == "V":
+                        self.fallable = 0
+                    elif self.currChar == "#": #net
+                        pass
                     
                     elif self.fallable and self.currChar == " ":
                         movedir = "fall"
@@ -103,9 +115,9 @@ class Program:
                         elif self.currChar == "%":
                             stack.append(a%b)
                         elif self.currChar == "=":
-                            stack.append(a==b)
+                            stack.append(int(a==b))
                         elif self.currChar == "`":
-                            stack.append(a>b)
+                            stack.append(int(a>b))
 
 ##                        if debug: print(stack)
 
@@ -118,7 +130,7 @@ class Program:
                         if self.currChar == "~":
                             stack.append(-b)
                         elif self.currChar == ",":
-                            stack.append(not b)
+                            stack.append(int(not b))
 
                     elif self.currChar in "!?@&":
                         if self.currChar == "!":
@@ -177,28 +189,82 @@ class Program:
                         if self.currChar == "B":
                             self.velocity = [self.velocity[1],self.velocity[0],self.velocity[2]]
                             if not tos: self.velocity = [-v for v in self.velocity]
+
+                    elif self.currChar in "i": #loop counter
+                        stack.append(self.loops[-1][4] if self.loops else -1)
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
+                            tos = stack.pop() if stack and self.toggleFlag else 0
+
+                            newstack = stack[-tos:]
                             self.loops.append(["while",
                                                self.position,
                                                self.velocity,
-                                               stack[:]])
+                                               newstack,
+                                               0])
                             
-                            if debug: print(self.loops[-1])
-                            stack = []
+##                            if debug: print(self.loops[-1], self.stack)
+                            if self.toggleFlag:
+                                for i in range(tos): stack.pop()
+                            else:
+                                stack.clear()
                             
                         elif self.currChar == ")":
                             if self.loops[-1][0] != "while":
                                 raise ValueError("Expected a while loop. Got a %s loop."%self.loops[-1][0])
-                            
-                            if len(self.loops[-1][3]) == 0 or self.loops[-1][3] == 0:
-                                self.push(self.loops[-1][3])
-                                self.loops.pop()
+
+##                            if debug: print(self.loops[-1])
+                            if len(self.loops[-1][3]) == 0 or self.loops[-1][3][-1] == 0:
+##                                if debug: print("?????")
+                                lastLoop = self.loops.pop()
+##                                if debug: print(lastLoop, self.stack)
+                                parent = self.loops[-2][3] if self.loops else self.stack
+                                parent.extend(lastLoop[3][:-1])
+##                                if debug: print(parent, self.stack)
                             else:
+                                self.loops[-1][0][4] += 1 #increment loop counter
                                 movedir = "teleport"
                                 arg2 = self.loops[-1][1:3]
                                 if debug: print(self.loops[-1][3])
+                            
+                    elif self.currChar in "[]": #for loop
+                        if self.currChar == "[":
+                            iters = stack.pop() if stack else 0                            
+                            tos = stack.pop() if stack and self.toggleFlag else 0
+
+                            newstack = stack[len(stack)-tos:]
+                            self.loops.append(["for",
+                                               self.position,
+                                               self.velocity,
+                                               newstack,
+                                               0,
+                                               iters])
+                            
+##                            if debug: print(self.loops[-1], self.stack)
+                            if self.toggleFlag:
+                                for i in range(tos): stack.pop()
+                            else:
+                                pass
+                            
+                        elif self.currChar == "]":
+                            if self.loops[-1][0] != "for":
+                                raise ValueError("Expected a for loop. Got a %s loop."%self.loops[-1][0])
+
+##                            if debug: print(self.loops[-1])
+                            if self.loops[-1][4] >= self.loops[-1][5]-1:
+##                                if debug: print("?????")
+                                lastLoop = self.loops.pop()
+##                                if debug: print(lastLoop, self.stack)
+                                if lastLoop[5]:
+                                    parent = self.loops[-2][3] if self.loops else self.stack
+                                    parent.extend(lastLoop[3])
+##                                if debug: print(parent, self.stack)
+                            else:
+                                self.loops[-1][4] += 1 #increment loop counter
+                                movedir = "teleport"
+                                arg2 = self.loops[-1][1:3]
+##                                if debug: print(self.loops[-1][3])
 
                     else:
                         pass
@@ -207,6 +273,8 @@ class Program:
                         self.strLiteral += self.currChar
                     elif self.numMode:
                         self.numLiteral = 10*self.numLiteral + int(self.currChar)
+
+            if self.toggleFlag and self.currChar != "$": self.toggleFlag = 0
 
             if debug: print(stack)
             self.move(movedir, arg2)
@@ -219,14 +287,14 @@ class Program:
     def move(self, direction="", arg2=None):
         from math import copysign
 
-        if debug: print("Old velocity:",self.velocity)
+##        if debug: print("Old velocity:",self.velocity)
         if direction == "fall": self.velocity = [0,0,1]
         if direction == "down": self.velocity = [0,1,0]
         if direction == "left": self.velocity = [-1,0,0]
         if direction == "right": self.velocity = [1,0,0]
         if direction == "up": self.velocity = [0,-1,0]
         if direction == "jump": self.velocity = [(arg2+1)*v for v in self.velocity]
-        if debug: print("New velocity:",self.velocity)
+##        if debug: print("New velocity:",self.velocity)
 
         if direction == "teleport":
             self.position, self.velocity = arg2
