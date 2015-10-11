@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.1
+##Current version: 0.2
 
 - [Introduction](#introduction)
 - [How To](#how-to)
@@ -45,7 +45,8 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `n N` Input/output number. (`n` dumps non-digits from the input until an integer is found. This is how [this Befunge interpreter](http://www.quirkster.com/iano/js/befunge.html) works.)
 - `b B` Straight, T branches.
 - `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
-- `( )` While loop; takes all of parent's stack.
+- `( )` While loop; takes all of parent's stack unless `$` is used right beforehand, in which case it pops `n` and puts that number of the parent stack's elements in the loop's stack.
+- `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
 
 ###To implement
 
@@ -57,10 +58,9 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
 - `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
 - `[ ]` For loop. Pops `n` and repeats `n` times.
-- `{ }` While loop; takes top `n` elements of parent's stack.
+- `{ }` Recursion.
 - `r R` Reverse and rotate stack. `R` pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
-- `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
 
 ###Unassigned:
 
@@ -90,8 +90,7 @@ One significant feature that sets Minkolang apart from Befunge and ><> is that i
 All loops have their own stack, which may have any number of elements from the parent stack (either the main program or a parent loop). Now, very interestingly, the loop's closing brace can be anywhere. When a closing brace is reached, the program counter is relocated to the opening brace and the direction is reset to what it was when the loop was entered.
 
 - **For loop** `[]`: Pops the top of the stack (`n`) and repeats the loop's contents `n` times.
-- **While loop** (take it all) `()`: The parent's whole stack is used to populate this loop's stack. Loops until stack is empty or top of stack is 0.
-- **While loop** (n elements) `{}`: Pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
+- **While loop** (take it all) `()`: The parent's whole stack is used to populate this loop's stack, **unless** `$` is used right beforehand, in which case, pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
 
 ---
 
