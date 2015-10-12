@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.3
+##Current version: 0.4
 
 - [Introduction](#introduction)
 - [How To](#how-to)
@@ -31,38 +31,52 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 
 ###Implemented
 
-- `v < > ^` Changes the direction of the program counter.
+**Movement**
 - `<space>` Lets the program counter move through time (fall to the next layer).
+- `#` Net; stops the program counter from moving through time (it's a no-op).
+- `v < > ^` Changes the direction of the program counter.
+- `/\|_` Mirrors. They act like you would expect.
+- `! ? @ &` Trampolines. `! ?` jump one character (`?` jumps if the top of stack is non-zero); `@ &` pop `n` from top of stack and jump `n` characters (`&` is conditional, like `?`).
 - `V` Boost; enables the program counter to cross any number of spaces.
+- `w W` Wormholes; they allow you to jump to any point in the code. `w` pops `y`,`x` off the stack and jumps to `(x,y)` whereas `W` pops `t`,`y`,`x` off the stack and jumps to `(x,y,t)`.
+
+**Control structures**
 - `.` Terminates program.
+- `b B` Straight, T branches.
+- `( )` While loop; takes all of parent's stack unless `$` is used right beforehand, in which case it pops `n` and puts that number of the parent stack's elements in the loop's stack.
+- `[ ]` For loop. Pops `n` and repeats body `n` times.
+- `{ }` [Recursion.](#recursion)
+
+**Literals**
 - `0...9` Pushes the corresponding digit onto the stack.
 - `"..."` String literal. Minkolang is smart enough to reverse this before pushing on the stack.
 - `'...'` Number literal. Does the work of multiplying by 10 and adding the next digit.
+
+**Math and comparisons**
 - `+ - * : ; % ~` Add, subtract, multiply, divide (integer division), power (exponent), modulus, negation.
 - `= ``` ,` Equality, greater-than (pops `b`,`a`, then pushes `a>b`), and not.
-- `#` Net; stops the program counter from moving through time (it's a no-op).
-- `! ? @ &` Trampolines. `! ?` jump one character (`?` jumps if the top of stack is non-zero); `@ &` pop `n` from top of stack and jump `n` characters (`&` is conditional, like `?`).
+
+**Input and output**
 - `o O` Input/output character.
 - `n N` Input/output number. (`n` dumps non-digits from the input until an integer is found. This is how [this Befunge interpreter](http://www.quirkster.com/iano/js/befunge.html) works.)
-- `b B` Straight, T branches.
+
+**Stack manipulation**
 - `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
 - `i` Gets loop's counter (0-based) and pushes it onto the stack.
 - `r` Reverses stack.
-- `( )` While loop; takes all of parent's stack unless `$` is used right beforehand, in which case it pops `n` and puts that number of the parent stack's elements in the loop's stack.
-- `[ ]` For loop. Pops `n` and repeats body `n` times.
-- `{ }` Recursion.
+- `R` Rotates stack. Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
+- `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
+
+**Special**
 - `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
 
 ###To implement
 
-- `/\|_` Mirrors. They act like you would expect.
-- `w W` Wormholes; they allow you to jump to any point in the code. `w` pops `y`,`x` off the stack and jumps to `(x,y)` whereas `W` pops `t`,`y`,`x` off the stack and jumps to `(x,y,t)`.
+**Memory and reflection (self-modification)**
 - `g G` Stack index/insert. `g` pops `n` and gets the stack's `n`th element and puts it on top of stack. `G` pops `n`,`x` and inserts `x` at the `n`-th position (zero-indexed).
 - `a A` Array get/put. `a` pops `y`,`x` and puts `Array[y][x]` on top of stack. `A` pops `k`,`y`,`x` and writes `k` to `Array[y][x]`.
 - `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
 - `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
-- `R` Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
-- `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
 
 ###Unassigned:
 
