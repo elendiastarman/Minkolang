@@ -94,8 +94,6 @@ All loops have their own stack, which may have any number of elements from the p
 - **For loop** `[]`: Pops the top of the stack (`n`) and repeats the loop's contents `n` times.
 - **While loop** (take it all) `()`: The parent's whole stack is used to populate this loop's stack, **unless** `$` is used right beforehand, in which case, pops the top of the stack (`n`) and takes the top `n` elements of the parent's stack to populate this loop's stack. Loops until stack is empty or top of stack is 0.
 
----
-
 ###Branches
 
 Another interesting thing about Minkolang is its branches. There are two kinds of branches: straight branches (`b`) and T branches (`B`). Both kinds pop the top of the stack off and check to see if it's zero.
@@ -147,6 +145,18 @@ B <
 0B1
 
  ^</pre>
+
+###Recursion
+
+As far as I know, this is absolutely the only 2D language to have recursion. In Minkolang, `{}` are the control characters. On the first use of `{` (or if `$` was used right before), a recursive function is initialized. This means popping `n` off the top of the stack, which sets the number of arguments to take. The top `n` elements of the parent stack are popped off and used to populate the recursion's stack. This applies to child instances too, which are started when the program counter encounters another `{`. Returning is done by using `}`, which simply plops the instance's stack on top of the parent (often, another recursion instance) stack.
+
+To put it another way, there are three steps to doing recursion in Minkolang:
+
+1. Initialize. For example, if the program counter encounters `3{` and the stack is `[1,2,3,4,5]`, then the recursion's stack will be `[3,4,5]`, and any further children will also take the top three elements of their parent's stack.
+2. Recurse. This is done by using `{` again. The program counter jumps to the very first `{` that started the whole recurrence.
+3. Return. This is done by using `}`. The program counter jumps to the last `{` that was countered and moves from there.
+
+This is certainly a bit complicated, but try working through the [Fibonacci example](#fibonacci-sequence-recursion) below. Hopefully that'll help.
 
 ---
 
