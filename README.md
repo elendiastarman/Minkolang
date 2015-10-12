@@ -63,6 +63,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 **Stack manipulation**
 - `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
 - `i` Gets loop's counter (0-based) and pushes it onto the stack.
+- `I` Pushes the stack's length onto the stack.
 - `r` Reverses stack.
 - `R` Rotates stack. Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
@@ -84,7 +85,6 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `e E`
 - `f F`
 - `h H`
-- `I`
 - `j J`
 - `k K`
 - `l L`
