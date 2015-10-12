@@ -223,6 +223,8 @@ class Program:
 
                     elif self.currChar in "i": #loop counter
                         stack.append(self.loops[-1][4] if self.loops else -1)
+                    elif self.currChar == "I": #stack length
+                        stack.append(len(stack))
 
                     elif self.currChar == "r": #reverse stack
                         stack.reverse()
