@@ -3,7 +3,7 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "putget_test.mkl", ""]
+    sys.argv = ["minkolang_0.1.py", "array_test.mkl", ""]
     debug = 1
     numSteps = 50
 
@@ -220,15 +220,13 @@ class Program:
                             print(chr(int(tos)), end='', flush=True)
 
                     elif self.currChar in "dD": #duplication
-                        if not stack: stack = [0]
+                        tos = stack.pop() if stack else 0
                         
                         if self.currChar == "d":
-                            stack.append(stack[-1])
+                            stack.extend([tos]*2)
                         elif self.currChar == "D":
-                            if len(stack) < 2: stack.append(0)
-                            
-                            n = stack.pop()-1
-                            stack.extend([stack[-1]]*n)
+                            n = stack.pop() if stack else 0
+                            stack.extend([n]*(tos+1))
 
                     elif self.currChar in "bB": #branches
                         tos = stack.pop() if stack else 0
@@ -337,6 +335,32 @@ class Program:
                                 stack.append(ord(q) if type(q) == str else q)
                             else:
                                 stack.append(0)
+
+                    elif self.currChar in "aA": #array get/put
+                        k = stack.pop() if stack and self.currChar == "A" else 0
+                        y = stack.pop() if stack else 0
+                        x = stack.pop() if stack else 0
+                        
+                        if x>=0 and y>=0:
+                            
+                            if self.currChar == "a":
+                                if 0 <= y < len(self.array) and 0 <= x < len(self.array[0]):
+                                    stack.append(self.array[y][x])
+                                else:
+                                    stack.append(0)
+                                    
+                            elif self.currChar == "A":
+                                if debug: print(*self.array)
+                                if 0 <= y < len(self.array) and 0 <= x < len(self.array[0]):
+                                    pass
+                                else:
+                                    for line in self.array:
+                                        line.extend([0]*(x-len(line)+1))
+                                    while len(self.array) <= y:
+                                        self.array.append([0]*(x+1))
+                                if debug: print(*self.array)
+                                        
+                                self.array[y][x] = k
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
