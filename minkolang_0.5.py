@@ -3,7 +3,7 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "toggle_math.mkl", "5"]
+    sys.argv = ["minkolang_0.1.py", "sortAndSet_some.mkl", ""]
     debug = 1
     numSteps = 50
 
@@ -129,11 +129,8 @@ class Program:
                             stack.clear()
 
                         else:
-                            if len(stack) < 2:
-                                stack = [0]*(2-len(stack)) + stack
-
-                            b = stack.pop()
-                            a = stack.pop()
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
                             
                             if self.currChar == "+":
                                 result = a+b
@@ -161,9 +158,9 @@ class Program:
                         b = stack.pop()
 
                         if self.currChar == "~":
-                            stack.append(-b)
+                            stack.append(-b if not self.toggleFlag else abs(b))
                         elif self.currChar == ",":
-                            stack.append(int(not b))
+                            stack.append(int(not b if not self.toggleFlag else bool(b)))
 
                     elif self.currChar in "!?@&":
                         if self.currChar == "!":
@@ -231,6 +228,23 @@ class Program:
                         movedir = "wormhole"
                         arg2 = [[nx,ny,nz],self.velocity]
 
+                    elif self.currChar in "gG": #stack index/insert
+                        tos = stack.pop() if stack else 0
+
+                        if self.currChar == "g" and stack:
+                            stack.append(stack.pop(tos))
+                        elif self.currChar == "G" and stack:
+                            toput = stack.pop() if stack else 0
+                            stack.insert(tos, toput)
+
+                    elif self.currChar in "xX": #dump
+                        if self.toggleFlag:
+                            stack.clear()
+                        else:
+                            tos = stack.pop() if stack else 0
+                            if self.currChar == "X":
+                                for i in range(min([tos,len(stack)])): stack.pop()
+
                     elif self.currChar in "i": #loop counter
                         stack.append(self.loops[-1][4] if self.loops else -1)
                     elif self.currChar == "I": #stack length
@@ -246,10 +260,27 @@ class Program:
                         stack.clear()
                         stack.extend(newstack)
 
-                    elif self.currChar in "xX":
-                        tos = stack.pop() if stack else 0
-                        if self.currChar == "X":
-                            for i in range(min([tos,len(stack)])): stack.pop()
+                    elif self.currChar == "s": #sort
+                        if self.toggleFlag:
+                            tos = stack.pop() if stack else 0
+                            newstack = stack[-tos:]
+                            for n in newstack: stack.pop()
+                            newstack.sort(reverse=True)
+                            stack.extend(newstack)
+                        else:
+                            stack.sort(reverse=True)
+                    elif self.currChar == "S": #set
+                        tos = stack.pop() if stack and self.toggleFlag else 0
+                        newstack = stack[-tos:]
+                        for n in newstack: stack.pop()
+
+                        j = len(newstack)-1
+                        seen = []
+                        while j >= 0:
+                            if newstack[j] not in seen: seen.append(newstack[j])
+                            j -= 1
+
+                        stack.extend(seen[::-1])
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
@@ -283,7 +314,7 @@ class Program:
                             
                     elif self.currChar in "[]": #for loop
                         if self.currChar == "[":
-                            iters = stack.pop() if stack else 0                            
+                            iters = stack.pop() if stack else 0                        
                             tos = stack.pop() if stack and self.toggleFlag else 0
 
                             newstack = stack[len(stack)-tos:]
