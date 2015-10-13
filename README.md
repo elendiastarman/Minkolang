@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.4
+##Current version: 0.5
 
 - [Introduction](#introduction)
 - [How To](#how-to)
@@ -43,9 +43,13 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 **Control structures**
 - `.` Terminates program.
 - `b B` Straight, T branches.
-- `( )` While loop; takes all of parent's stack unless `$` is used right beforehand, in which case it pops `n` and puts that number of the parent stack's elements in the loop's stack.
+ - `$` reverses the branch endpoints (swaps where truthy and falsy go).
+- `( )` While loop; takes all of parent's stack.
+ - `$` pops `n` and puts the top `n` elements of the parent stack into the loop's stack.
 - `[ ]` For loop. Pops `n` and repeats body `n` times.
+ - `$` Pops `x` and puts the top `x` elements of parent stack into the loop's stack.
 - `{ }` [Recursion.](#recursion)
+ - `$` Starts a new recursion.
 
 **Literals**
 - `0...9` Pushes the corresponding digit onto the stack.
@@ -53,28 +57,38 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `'...'` Number literal. Does the work of multiplying by 10 and adding the next digit.
 
 **Math and comparisons**
-- `+ - * : ; % ~` Add, subtract, multiply, divide (integer division), power (exponent), modulus, negation.
-- `= ``` ,` Equality, greater-than (pops `b`,`a`, then pushes `a>b`), and not.
+- `+ - * : ; % ~` Add, subtract (`a-b`), multiply, integer division (`a//b`), exponentiation (`a**b`), modulus (`a%b`), negation. `b` is popped first, then `a` so doing `53-` (for example) intuitively gives `2`, as expected.
+ - `$` changes these into sum, reverse subtract (`b-a`), product, float division (`a/b`), reverse exponentiation (`b**a`), reverse modulus (`b%a`), and absolute value.
+- `= <backtick> ,` Equality, greater-than (pops `b`,`a`, then pushes `a>b`, so `53<backtick>` will push 1, as expected), and not.
+ - `$` changes these into not-equal, `b>a`, and boolean (like Python's `bool()`).
 
 **Input and output**
 - `o O` Input/output character.
 - `n N` Input/output number. (`n` dumps non-digits from the input until an integer is found. This is how [this Befunge interpreter](http://www.quirkster.com/iano/js/befunge.html) works.)
 
 **Stack manipulation**
-- `d D` Duplicate top [n] elements of stack. (`D` pops the top of stack as `n`; `n=1` for `d`.)
+- `d D` Duplicates top element of stack. `D` pops `n` and duplicates the top of stack `n` times.
+- `g G` Stack index/insert. `g` pops `n` and gets the stack's `n`th element and puts it on top of stack. `G` pops `n`,`x` and inserts `x` at the `n`-th position (zero-indexed).
 - `i` Gets loop's counter (0-based) and pushes it onto the stack.
 - `I` Pushes the stack's length onto the stack.
 - `r` Reverses stack.
 - `R` Rotates stack. Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
+- `s` Sorts the stack.
+ - `$` pops `n` and sorts the top `n` elements of the stack.
+- `S` Removes duplicates. So `"Hello world!"S(O).` will give you `Hel wrd!`.
+ - `$` pops `n` and removes duplicates from the top `n` elements of the stack.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
+ - `$` dumps the whole stack.
+
+**Memory and reflection (self-modification)**
 
 **Special**
-- `$` Toggles the functionality of many functions. Complex feature, will be explained in its own section.
+- `$` Toggles the functionality of many functions. This "toggle flag" only remains active for one step.
+ - `$` (that is, `$$`) turns on the toggle flag permanently until another `$` is encountered.
 
 ###To implement
 
 **Memory and reflection (self-modification)**
-- `g G` Stack index/insert. `g` pops `n` and gets the stack's `n`th element and puts it on top of stack. `G` pops `n`,`x` and inserts `x` at the `n`-th position (zero-indexed).
 - `a A` Array get/put. `a` pops `y`,`x` and puts `Array[y][x]` on top of stack. `A` pops `k`,`y`,`x` and writes `k` to `Array[y][x]`.
 - `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
 - `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
@@ -89,7 +103,6 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `k K`
 - `l L`
 - `m M`
-- `s S`
 - `t T`
 - `u U`
 - `y Y`
