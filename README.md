@@ -38,6 +38,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `/\|_` Mirrors. They act like you would expect.
 - `! ? @ &` Trampolines. `! ?` jump one character (`?` jumps if the top of stack is non-zero); `@ &` pop `n` from top of stack and jump `n` characters (`&` is conditional, like `?`).
 - `V` Boost; enables the program counter to cross any number of spaces.
+ - `$` enables the boost permanently until it encounters another `V`.
 - `w W` Wormholes; they allow you to jump to any point in the code. `w` pops `y`,`x` off the stack and jumps to `(x,y)` whereas `W` pops `t`,`y`,`x` off the stack and jumps to `(x,y,t)`.
 
 **Control structures**
@@ -85,6 +86,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 **Special**
 - `$` Toggles the functionality of many functions. This "toggle flag" only remains active for one step.
  - `$` (that is, `$$`) turns on the toggle flag permanently until another `$` is encountered.
+- `$$$` Separates layers of a program. See the [layered Hello world! example](#layered-hello-world).
 
 ###To implement
 
@@ -232,3 +234,15 @@ Once that returns, `r2-{` is executed. This reverses the stack so input is now i
 Once *that* returns, then finally, the two values are added together and returned with `+}`. This is the F(n-1) + F(n-2) part.
 
 At the ultimate conclusion (i.e., when F(n) has been calculated), `N.` outputs F(n) as an integer and exits.
+
+###Layered "Hello world!"
+
+<pre>!v"Hello world!"!
+
+$$$
+
+$$$
+
+V<        .)O(</pre>
+
+This demonstrates how the layers of a program can be separated. The interpreter automatically fills in lines and spaces as needed to make a complete rectangular prism for the code space. The execution is as follows: the first `!` jumps over the `v`, "Hello world!" is pushed onto the stack, then another `!` skips the first one, so the program counter is redirected downward. It lands on a space, so it moves through time (falls) until it hits the `<`. The `V` boosts it across the space to the output loop `.)O(` (normally written as `(O).`).
