@@ -384,7 +384,7 @@ class Program:
 
                             if len(self.loops[-1][3]) == 0 or self.loops[-1][3][-1] == 0:
                                 lastLoop = self.loops.pop()
-                                parent = self.loops[-2][3] if self.loops else self.stack
+                                parent = self.loops[-1][3] if self.loops else self.stack
                                 parent.extend(lastLoop[3][:-1])
                             else:
                                 self.loops[-1][4] += 1 #increment loop counter
@@ -417,7 +417,7 @@ class Program:
                             if self.loops[-1][4] >= self.loops[-1][5]-1:
                                 lastLoop = self.loops.pop()
                                 if lastLoop[5]:
-                                    parent = self.loops[-2][3] if self.loops else self.stack
+                                    parent = self.loops[-1][3] if self.loops else self.stack
                                     parent.extend(lastLoop[3])
                             else:
                                 self.loops[-1][4] += 1 #increment loop counter
