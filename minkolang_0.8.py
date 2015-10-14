@@ -272,7 +272,7 @@ class Program:
                         stack.reverse()
                     elif self.currChar == "R": #rotates stack
                         tos = stack.pop() if stack else 0
-                        mod = tos % len(stack)# + (tos < 0)
+                        mod = tos % len(stack)
                         
                         newstack = stack[-mod:] + stack[:-mod]
                         stack.clear()
@@ -403,7 +403,7 @@ class Program:
                             iters = stack.pop() if stack else 0                        
                             tos = stack.pop() if stack and self.toggleFlag else 0
 
-                            newstack = stack[len(stack)-tos:]
+                            newstack = stack[-tos:]
                             self.loops.append(["for",
                                                self.position,
                                                self.velocity,
