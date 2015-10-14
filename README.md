@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.7
+##Current version: 0.8
 
 - [Introduction](#introduction)
 - [How To](#how-to)
@@ -21,9 +21,9 @@ Minkolang is stack-based like many esolangs, which has an infinite well of `0`s,
 
 ##How To
 
-Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and that it and `minkolang.py` are in the same folder). Then you would run this with an input of `13` like this:
+Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and that it and `minkolang_0.8.py` are in the same folder). Then you would run this with an input of `13` like this:
 
-<pre>python minkolang.py collatz.mkl 13</pre>
+<pre>python minkolang_0.8.py collatz.mkl 13</pre>
 
 ---
 
@@ -90,6 +90,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `$` Toggles the functionality of many functions. This "toggle flag" only remains active for one step.
  - `$` (that is, `$$`) turns on the toggle flag permanently until another `$` is encountered.
 - `$$$` Separates layers of a program. See the [layered Hello world! example](#layered-hello-world).
+- `u U` Debug (print) the current stack (`u`) and the code and loops (`U`).
 
 ###To implement
 
@@ -104,7 +105,6 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `l L`
 - `m M`
 - `t T`
-- `u U`
 - `y Y`
 - `z Z`
 
@@ -127,51 +127,17 @@ Another interesting thing about Minkolang is its branches. There are two kinds o
 
 - **Straight branch** `b`: a non-zero input will continue on in the same direction whereas a zero input will reverse direction.
 
-<pre>> 0b1
-
-.
-
-1b0 <
-
-.
-
-v
-
-0
-b
-1
-
-.
-
-1
-b
-0
-
-^</pre>
+<pre>       v
+       0         1
+> 0b1  b  1b0 <  b
+       1         0
+                 ^</pre>
 
 - **T branch** `B`: a non-zero input will bend to the right (clockwise) whereas a zero input will bend to the left (counter-clockwise).
 
-<pre>  0
-> B
-  1
-
-.
-
- v
- 
-1B0
-
-.
-
-1
-B <
-0
-
-.
-
-0B1
-
- ^</pre>
+<pre>  0   v   1
+> B  1B0  B <  0B1
+  1       0     ^</pre>
 
 ###Recursion
 
