@@ -3,7 +3,7 @@ import os
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "array_test.mkl", ""]
+    sys.argv = ["minkolang_0.1.py", "input_test.mkl", "a-5b3cde"]
     debug = 1
     numSteps = 50
 
@@ -200,16 +200,37 @@ class Program:
                     elif self.currChar in "no": #input
                         if self.currChar == "n":
                             beg = 0
-                            while self.inputStr[beg].isalpha(): beg += 1
-                            
-                            end = beg+1
-                            while end <= len(self.inputStr) and self.inputStr[beg:end].isdecimal(): end += 1
+                            while beg < len(self.inputStr) and not self.inputStr[beg].isdecimal():
+                                if debug: print(beg, self.inputStr[beg])
+                                beg += 1
 
-                            stack.append(int(self.inputStr[beg:end-1]))
-                            self.inputStr = self.inputStr[end-1:]
+                            if beg >= len(self.inputStr):
+                                stack.append(-1)
+                                self.inputStr = ""
+                            else:
+                                end = beg+1
+                                num = 0.0
+                                
+                                while end <= len(self.inputStr):
+                                    try:
+                                        num = float(self.inputStr[beg:end])
+                                        end += 1
+                                    except ValueError:
+                                        break
+
+                                if num.is_integer: num = int(num)
+
+                                if self.inputStr[beg-1] == "-": num *= -1
+
+                                stack.append(num)
+                                self.inputStr = self.inputStr[end-1:]
+                                
                         elif self.currChar == "o":
-                            stack.append(ord(self.inputStr[0]))
-                            self.inputStr = self.inputStr[1:]
+                            if not len(self.inputStr):
+                                stack.append(0)
+                            else:
+                                stack.append(ord(self.inputStr[0]))
+                                self.inputStr = self.inputStr[1:]
                             
                     elif self.currChar in "NO": #output
                         tos = stack.pop() if stack else 0
@@ -470,11 +491,14 @@ class Program:
 
                     else:
                         pass
-                else:
+                else: #if in string or number mode
                     if self.strMode:
                         self.strLiteral += self.currChar
                     elif self.numMode:
-                        self.numLiteral = 10*self.numLiteral + int(self.currChar)
+                        if self.currChar == "-":
+                            self.numLiteral *= -1
+                        elif self.currChar.isdigit():
+                            self.numLiteral = 10*self.numLiteral + int(self.currChar)
 
             if self.toggleFlag and self.currChar != "$" and not self.stuckFlag: self.toggleFlag = 0
 
