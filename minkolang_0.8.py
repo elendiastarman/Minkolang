@@ -218,7 +218,7 @@ class Program:
                                     except ValueError:
                                         break
 
-                                if num.is_integer: num = int(num)
+                                if num.is_integer(): num = int(num)
 
                                 if self.inputStr[beg-1] == "-": num *= -1
 
