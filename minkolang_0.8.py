@@ -1,23 +1,27 @@
 import sys
 import os
+##import signal
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "input_test.mkl", "a-5b3cde"]
+    sys.argv = ["minkolang_0.1.py", "PPCG_ISawThatComing.mkl", "-3"]
     debug = 1
-    numSteps = 50
+    numSteps = 100
 
-if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
-if len(sys.argv) == 2: sys.argv.append("")
+##if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
+##if len(sys.argv) == 2: sys.argv.append("")
 
 ##print(sys.argv)
 ##print(os.curdir, os.getcwd())
 
-file = open(sys.argv[1]).read()
+if len(sys.argv) > 1 and sys.argv[1][-4:] == ".mkl":
+    file = open(sys.argv[1]).read()
+else:
+    file = None
 
 class Program:
     global debug
-    def __init__(self, code, inputStr="", debugFlag=0):
+    def __init__(self, code, inputStr="", debugFlag=0, outfile=sys.stdout):
         global debug
         debug = debugFlag
         
@@ -33,6 +37,7 @@ class Program:
 
         self.position = [0,0,0] #[x,y,z]
         self.velocity = [1,0,0] #[dx,dy,dz]
+        self.oldposition = self.position[:]
 
         self.stack = []
         self.array = [[]]
@@ -55,15 +60,22 @@ class Program:
         if debug: print(self.bounds)
         for layer in self.code:
             for row in layer:
-                row.extend([" "]*(self.bounds[0][1]-len(row)+1))
+                row.extend([" "]*(self.bounds[0][1]-len(row)))
                 if debug: print(row)
             while len(layer) < self.bounds[1][1]:
                 layer.append([" "]*self.bounds[0][1])
             
         self.currChar = ""
+        self.output = ""
+        if outfile == None:
+            self.outfile = open(os.devnull, 'w')
+
+        self.stopNow = False
 
     def run(self, steps=-1): #steps = -1 for run-until-halt
-        while steps != 0:
+        self.stopNow = False
+        
+        while steps != 0 and self.stopNow == False:
             steps -= 1
             self.getCurrent()
             movedir = ""
@@ -94,6 +106,7 @@ class Program:
                         self.fallable = 1
                     
                     if self.currChar == ".": #stop execution
+                        self.oldposition = self.position
                         return
                     elif self.currChar == "$": #toggle functionality
                         if self.stuckFlag:
@@ -236,9 +249,15 @@ class Program:
                         tos = stack.pop() if stack else 0
                         
                         if self.currChar == "N":
-                            print(tos, end=' ', flush=True)
+                            print(tos, end=' ', flush=True, file=self.outfile)
+                            self.output += str(tos) + ' '
                         elif self.currChar == "O":
-                            print(chr(int(tos)), end='', flush=True)
+                            try:
+                                c = chr(int(tos))
+                            except ValueError:
+                                c = ""
+                            print(c, end='', flush=True, file=self.outfile)
+                            self.output += c
 
                     elif self.currChar in "dD": #duplication
                         tos = stack.pop() if stack else 0
@@ -384,10 +403,10 @@ class Program:
                                 self.array[y][x] = k
 
                     elif self.currChar == "u":
-                        print(stack)
+                        print(stack, file=self.outfile)
                     elif self.currChar == "U":
-                        print(*self.code)
-                        print(*self.loops)
+                        print(*self.code, file=self.outfile)
+                        print(*self.loops, file=self.outfile)
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
@@ -401,7 +420,7 @@ class Program:
                                                0])
                             
                             if self.toggleFlag:
-                                for i in range(tos): stack.pop()
+                                for n in newstack: stack.pop()
                             else:
                                 stack.clear()
                             
@@ -433,9 +452,9 @@ class Program:
                                                iters])
                             
                             if self.toggleFlag:
-                                for i in range(min([tos,len(stack)])): stack.pop()
+                                for n in newstack: stack.pop()
                             else:
-                                pass
+                                stack.clear()
                             
                         elif self.currChar == "]":
                             if self.loops[-1][0] != "for":
@@ -517,6 +536,7 @@ class Program:
 
     def move(self, direction="", arg2=None):
         from math import copysign
+        self.oldposition = self.position[:]
 
 ##        if debug: print("Old velocity:",self.velocity)
         if direction == "fall": self.velocity = [0,0,1]
@@ -554,10 +574,22 @@ class Program:
         elif type(L) == int:
             self.stack.append(L)
 
-if debug:
-    prog = Program(file, sys.argv[2], debugFlag=1)
-    prog.run(numSteps)
+    def getCode(self): return self.code
+    def getArray(self): return self.array
+    def getLoops(self): return self.loops
+    def getStack(self): return self.stack
+    def getOutput(self): return self.output
+    def getPosition(self): return self.position
+    def getvelocity(self): return self.velocity
+    def getOldPosition(self): return self.oldposition
 
-else:
-    Program(file, sys.argv[2]).run()
-    print()
+    def stop(self): self.stopNow = True
+
+if file:
+    if debug:
+        prog = Program(file, sys.argv[2], debugFlag=1)
+        prog.run(numSteps)
+
+    else:
+        Program(file, sys.argv[2]).run()
+        print()
