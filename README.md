@@ -1,5 +1,5 @@
 # Minkolang
-##Current version: 0.8
+##Current version: 0.9
 
 - [Introduction](#introduction)
 - [How To](#how-to)
