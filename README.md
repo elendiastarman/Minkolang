@@ -86,7 +86,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `S` Removes duplicates. So `"Hello world!"S(O).` will give you `Hel wrd!`.
  - `$` pops `n` and removes duplicates from the top `n` elements of the stack.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
- - `$` dumps the whole stack.
+ - `$` dumps from the front of the stack.
 - `m` Merge. Splits a list in half (if length is odd, the first half is longer) and interleaves the halves. `m` on `[1,2,3,4,5,6,7]` would result in `[1,5,2,6,3,7,4]`.
  - `$` pops `n` and merges the top `n` elements of the stack at the front of stack. As in, `3$m` on `[1,2,3,4,5,6,7,8,9]` would result in `[1,7,2,8,3,9,4,5,6]`.
 
