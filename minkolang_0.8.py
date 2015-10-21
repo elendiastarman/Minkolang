@@ -69,6 +69,8 @@ class Program:
         self.output = ""
         if outfile == None:
             self.outfile = open(os.devnull, 'w')
+        else:
+            self.outfile = outfile
 
         self.stopNow = False
 
