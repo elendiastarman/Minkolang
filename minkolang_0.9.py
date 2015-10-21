@@ -4,7 +4,7 @@ import json
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.1.py", "PPCG_ISawThatComing.mkl", "-3"]
+    sys.argv = ["minkolang_0.9.py", "insertionSort.mkl", "3 5 8 1 2 0 7"]
     debug = 1
     numSteps = 100
 
@@ -70,6 +70,8 @@ class Program:
         self.output = ""
         if outfile == None:
             self.outfile = open(os.devnull, 'w')
+        else:
+            self.outfile = outfile
 
         self.stopNow = False
         self.isDone = False
@@ -210,6 +212,8 @@ class Program:
                                 arg2 = tos
                             elif self.currChar == "&" and (stack.pop() if stack else 0):
                                 arg2 = tos
+                            else:
+                                movedir = ""
 
                     elif self.currChar in "no": #input
                         if self.currChar == "n":
@@ -532,9 +536,8 @@ class Program:
 
                             if self.loops[-1][4] >= self.loops[-1][5]-1:
                                 lastLoop = self.loops.pop()
-                                if lastLoop[5]:
-                                    parent = self.loops[-1][3] if self.loops else self.stack
-                                    parent.extend(lastLoop[3])
+                                parent = self.loops[-1][3] if self.loops else self.stack
+                                parent.extend(lastLoop[3])
                             else:
                                 self.loops[-1][4] += 1 #increment loop counter
                                 movedir = "teleport"
