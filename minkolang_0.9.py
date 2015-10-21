@@ -361,10 +361,10 @@ class Program:
                             tos = stack.pop() if stack else 0
                             newstack = stack[-tos:]
                             for n in newstack: stack.pop()
-                            newstack.sort(reverse=True)
+                            newstack.sort()
                             stack.extend(newstack)
                         else:
-                            stack.sort(reverse=True)
+                            stack.sort()
                     elif self.currChar == "S": #set (removes duplicates)
                         tos = stack.pop() if stack and self.toggleFlag else 0
                         newstack = stack[-tos:]
