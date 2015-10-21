@@ -45,12 +45,13 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 - `.` Terminates program.
 - `b B` Straight, T branches.
  - `$` reverses the branch endpoints (swaps where truthy and falsy go).
-- `( )` While loop; takes all of parent's stack.
- - `$` pops `n` and puts the top `n` elements of the parent stack into the loop's stack.
+- `( )` While loop; takes all of parent's stack and repeats until the stack is empty.
+ - `$(` pops `n` and puts the top `n` elements of the parent stack into the loop's stack. `$)` pops `n` and repeats if `n` is not zero.
 - `[ ]` For loop. Pops `n` and repeats body `n` times.
  - `$` Pops `x` and puts the top `x` elements of parent stack into the loop's stack.
 - `{ }` [Recursion.](#recursion)
  - `$` Starts a new recursion.
+- `k` Breaks out of the current loop. (That is, its stack is pushed onto the parent stack.)
 
 **Literals**
 - `0...9` Pushes the corresponding digit onto the stack.
@@ -69,10 +70,16 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 
 **Stack manipulation**
 - `d D` Duplicates top element of stack. `D` pops `n` and duplicates the top of stack `n` times.
+ - `$` does the same except on the whole stack. So executing `$d` on `[1,2,3]` will give `[1,2,3,1,2,3]`.
 - `g G` Stack index/insert. `g` pops `n` and gets the stack's `n`th element and puts it on top of stack. `G` pops `n`,`x` and inserts `x` at the `n`-th position (zero-indexed).
+- `c` Stack item copy. Pops `n` and pushes `stack[n]` onto the stack without removing it.
+ - `$` Stack slice. Pops `k` in addition and pushes `stack[k:n]` onto the stack. So `36$c` on `[0,1,2,3,4,5,6,7,8,9]` will result in `[0,1,2,3,4,5,6,7,8,9,3,4,5]`.
 - `i` Gets loop's counter (0-based) and pushes it onto the stack.
+ - `$` pushes the loop's maximum number of iterations if the current loop is a For loop.
 - `I` Pushes the stack's length onto the stack.
+ - `$` pushes the input string's length onto the stack.
 - `r` Reverses stack.
+ - `$` swaps the top two values of the stack.
 - `R` Rotates stack. Pops `n` and rotates clockwise `n` times (may be negative). If the stack is `[1,2,3,4,5]`, then `2R` results in `[4,5,1,2,3]`.
 - `s` Sorts the stack.
  - `$` pops `n` and sorts the top `n` elements of the stack.
@@ -80,6 +87,8 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
  - `$` pops `n` and removes duplicates from the top `n` elements of the stack.
 - `x X` Dump. `x` pops the top of stack and throws it away. `X` pops `n` and throws away the top `n` elements of the stack.
  - `$` dumps the whole stack.
+- `m` Merge. Splits a list in half (if length is odd, the first half is longer) and interleaves the halves. `m` on `[1,2,3,4,5,6,7]` would result in `[1,5,2,6,3,7,4]`.
+ - `$` pops `n` and merges the top `n` elements of the stack at the front of stack. As in, `3$m` on `[1,2,3,4,5,6,7,8,9]` would result in `[1,7,2,8,3,9,4,5,6]`.
 
 **Memory and reflection (self-modification)**
 - `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
@@ -94,16 +103,24 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
 
 ###To implement
 
+- `K` Park. Pops `n` and repeats the next instruction `n` times.
+- Register where you can store and retrieve one value
+- Random integer
+- Random direction
+- Escape-able characters in strings (so `"\n"` would be a newline)
+- Specify a base for a number literal
+- `M` Map
+- `F` Fold (reduce)
+
 ###Unassigned:
 
-- `c C`
+- `C`
 - `e E`
-- `f F`
+- `f`
 - `h H`
 - `j J`
 - `k K`
 - `l L`
-- `m M`
 - `t T`
 - `y Y`
 - `z Z`
