@@ -91,7 +91,7 @@ Let's say that `ndN(d2%,7@)Nd+1*3b2:dNd1=?).` is stored in `collatz.mkl` (and th
  - `$` pops `n` and merges the top `n` elements of the stack at the front of stack. As in, `3$m` on `[1,2,3,4,5,6,7,8,9]` would result in `[1,7,2,8,3,9,4,5,6]`.
 
 **Memory and reflection (self-modification)**
-- `p P` Puts to code. `p` pops `k`,`y`,`x` and replaces `Code(x,y)` with `k`. `p` pops `k`,`t`,`y`,`x` and replaces `Code(x,y,t)` with `k`.
+- `p P` Puts to code. `p` pops `y`,`x`,`k` and replaces `Code(x,y)` with `k`. `p` pops `t`,`y`,`x`,`k` and replaces `Code(x,y,t)` with `k`.
 - `q Q` Gets from code. `q` pops `y`,`x` and puts `Code(x,y)` on top of stack. `Q` pops ``t`,`y`,`x` and puts `Code(x,y,t)` on top of stack.
 - `a A` Array get/put. `a` pops `y`,`x` and puts `Array[y][x]` on top of stack. `A` pops `k`,`y`,`x` and writes `k` to `Array[y][x]`.
 
