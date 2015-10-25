@@ -1,10 +1,11 @@
 import os
 import sys
 import json
+from copy import deepcopy
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.9.py", "insertionSort.mkl", "3 5 8 1 2 0 7"]
+    sys.argv = ["minkolang_0.1.py", "PPCG_ISawThatComing.mkl", "-3"]
     debug = 1
     numSteps = 100
 
@@ -414,7 +415,7 @@ class Program:
                         if b[0][0] <= x < b[0][1] and b[1][0] <= y < b[1][1] and b[2][0] <= z < b[2][1]:
                             self.code[z][y][x] = n
                         else:
-                            self.codeput[(x,y,z)] = n
+                            self.codeput[str((x,y,z))] = n
 
                     elif self.currChar in "qQ": #code get
                         if self.currChar == "Q":
@@ -430,8 +431,8 @@ class Program:
                             q = self.code[z][y][x]
                             stack.append(ord(q) if type(q) == str else q)
                         else:
-                            if (x,y,z) in self.codeput:
-                                q = self.codeput[(x,y,z)]
+                            if str((x,y,z)) in self.codeput:
+                                q = self.codeput[str((x,y,z))]
                                 stack.append(ord(q) if type(q) == str else q)
                             else:
                                 stack.append(0)
@@ -665,6 +666,17 @@ class Program:
     def getVarsJson(self):
         V = vars(self).copy()
         V.pop('outfile')
+
+        #make complex numbers serializable by stringifying them
+        V['stack'] = V['stack'][:]
+        for i,v in enumerate(V['stack']):
+            if type(v) == complex: V['stack'][i] = str(v)
+
+        V['loops'] = deepcopy(V['loops'])
+        for L in V['loops']:
+            for i,v in enumerate(L[3]):
+                if type(v) == complex: L[3][i] = str(v)
+                
         return json.dumps(V)
 
     def stop(self): self.stopNow = True
