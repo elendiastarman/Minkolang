@@ -1,0 +1,25 @@
+-rand int/float
+-rand direction
+-string escape
+-base for number literal
+-register
+
+-split/join?
+
+-permutation
+-range [from a to b]
+-count
+-in between (abxY => a<=x<=b)
+
+MATH
+-pi, e
+-complex conjugate
+-factorial, binomial
+-is prime, nth prime
+-mean, standard deviation
+
+TRIG
+-sin, arcsin
+-cos, arccos
+-tan, arctan
+-atan2
