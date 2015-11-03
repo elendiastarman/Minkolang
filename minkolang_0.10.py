@@ -250,6 +250,7 @@ class Program:
                     elif self.currChar in "no": #input
                         if self.currChar == "n":
                             times = 1 if not self.toggleFlag else -1
+                            found = 0
 
                             while times and self.inputStr:
                                 found = 0
@@ -284,43 +285,13 @@ class Program:
                                     stack.append(num)
                                     self.inputStr = self.inputStr[end:]
                                 else:
-                                    stack.append(0)
                                     self.inputStr = ""
                                     break
 
-
                                 times -= 1
-                                
-##                            times = 1 if not self.toggleFlag else -1
-##
-##                            while times and self.inputStr:
-##                                beg = 0
-##                                while beg < len(self.inputStr) and not self.inputStr[beg].isdecimal():
-##                                    if debug: print(beg, self.inputStr[beg])
-##                                    beg += 1
-##
-##                                if beg >= len(self.inputStr):
-##                                    stack.append(-1)
-##                                    self.inputStr = ""
-##                                else:
-##                                    end = beg+1
-##                                    num = 0.0
-##                                    
-##                                    while end <= len(self.inputStr):
-##                                        try:
-##                                            num = float(self.inputStr[beg:end])
-##                                            end += 1
-##                                        except ValueError:
-##                                            break
-##
-##                                    if num.is_integer(): num = int(num)
-##
-##                                    if self.inputStr[beg-1] == "-": num *= -1
-##
-##                                    stack.append(num)
-##                                    self.inputStr = self.inputStr[end-1:]
-##
-##                                    times -= 1
+
+                            if not found:
+                                stack.append(-1)
                                 
                         elif self.currChar == "o":
                             if not len(self.inputStr):
