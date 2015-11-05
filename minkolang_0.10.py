@@ -10,12 +10,6 @@ if "idlelib" in sys.modules:
     debug = 1
     numSteps = 100
 
-##if len(sys.argv) < 2: raise ValueError("Need at least one file name!")
-##if len(sys.argv) == 2: sys.argv.append("")
-
-##print(sys.argv)
-##print(os.curdir, os.getcwd())
-
 if len(sys.argv) > 1 and sys.argv[1][-4:] == ".mkl":
     file = open(sys.argv[1], encoding="utf-8").read()
     if '\ufeff' in file: file = file[1:]
@@ -83,6 +77,7 @@ class Program:
     def run(self, steps=-1): #steps = -1 for run-until-halt
         self.stopNow = False
         self.codeChanged = 0
+        self.arrayChanged = 0
         
         while steps != 0 and self.stopNow == False and not self.isDone:
             steps -= 1
@@ -133,9 +128,12 @@ class Program:
                         self.fallable = 1
                     
                     if self.currChar == ".": #stop execution
-                        self.oldposition = self.position
-                        self.isDone = True
-                        return
+                        if not self.toggleFlag: #'$.' is a soft halt (breakpoint)
+                            self.oldposition = self.position
+                            self.isDone = True
+                            return
+                        else:
+                            self.stopNow = True
                     elif self.currChar == "$": #toggle functionality
                         if self.stuckFlag:
                             self.toggleFlag = 0
@@ -292,7 +290,7 @@ class Program:
 
                             if not found:
                                 stack.append(-1)
-                                
+                                    
                         elif self.currChar == "o":
                             if not len(self.inputStr):
                                 stack.append(0)
@@ -477,9 +475,10 @@ class Program:
 
                         if b[0][0] <= x < b[0][1] and b[1][0] <= y < b[1][1] and b[2][0] <= z < b[2][1]:
                             self.code[z][y][x] = n
-                            self.codeChanged = 1
                         else:
                             self.codeput[str((x,y,z))] = n
+                            
+                        self.codeChanged = 1
 
                     elif self.currChar in "qQ": #code get
                         if self.currChar == "Q":
@@ -502,9 +501,9 @@ class Program:
                                 stack.append(0)
 
                     elif self.currChar in "aA": #array get/put
-                        k = stack.pop() if stack and self.currChar == "A" else 0
                         y = stack.pop() if stack else 0
                         x = stack.pop() if stack else 0
+                        k = stack.pop() if stack and self.currChar == "A" else 0
                         
                         if x>=0 and y>=0:
                             
@@ -526,6 +525,7 @@ class Program:
                                 if debug: print(*self.array)
                                         
                                 self.array[y][x] = k
+                                self.arrayChanged = 1
 
                     elif self.currChar == "u":
                         print(stack, file=self.outfile)
@@ -659,7 +659,7 @@ class Program:
         if type(self.currChar) != str:
             try:
                 self.currChar = chr(self.currChar)
-            except [ValueError, TypeError]:
+            except (ValueError, TypeError):
                 self.currChar = ""
         if debug: print("Current character:",self.currChar)
 
@@ -695,26 +695,9 @@ class Program:
         if direction == "jump":
             self.velocity = [bool(v)*int(copysign(1,v)) for v in self.velocity] #resets after a jump
 
-##    def push(self, L):
-##        if type(L) == list:
-##            self.stack.extend(L)
-##        elif type(L) == str:
-##            self.stack.extend(map(ord,L[::-1]))
-##        elif type(L) == int:
-##            self.stack.append(L)
-##
     def getCode(self): return self.code
-##    def getArray(self): return self.array
-##    def getLoops(self): return self.loops
-##    def getStack(self): return self.stack
     def getModes(self): return [self.strMode,self.numMode]
-##    def getIsDone(self): return self.isDone
-##    def getOutput(self): return self.output
-##    def getCurrChar(self): return self.currChar
-##    def getPosition(self): return self.position
-##    def getVelocity(self): return self.velocity
     def getOldToggle(self): return self.oldToggle
-##    def getOldPosition(self): return self.oldposition
 
     def getVars(self):
         return vars(self)
