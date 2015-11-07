@@ -1,33 +1,33 @@
 -string escape
 -base for number literal
 -register
+-cursor position, velocity
+
+-range [from a to b]; 
+-in between (abxY => a<=x<=b)
+-max, min
+
+-gosub (F,f)
+
+STRING
+-lowercase, uppercase, switch case
 -convert number to string
-
-RANDOM
--rand int/float
--rand range
--rand direction
-
 -count instances of x
 -find instance[s] of x
 -remove one/all instance[s] of x
 -replace one/all instance[s] of x
 
--nth permutation
--range [from a to b]; int/float
--in between (abxY => a<=x<=b)
--max, min
-
 MATH
--pi, e
--complex conjugate
 -factorial, binomial
 -is prime, nth prime
 -sqrt, nth root
--mean, standard deviation
 -gcd, lcm
+-mean, standard deviation
+-complex conjugate
+-nth permutation
 
 TRIG
+-pi, e
 -sin, arcsin
 -cos, arccos
 -tan, arctan
