@@ -583,19 +583,18 @@ class Program:
                         elif tos == 2:
                             n = stack.pop() if stack else 0
                             P = getPrimes_parallelized()
-                            if not self.toggleFlag: #is prime?
-                                if n <= 1:
-                                    stack.append(0)
-                                else:
-                                    for p in P:
-                                        if p**2 > n:
-                                            stack.append(1)
-                                            break
-                                        if n%p == 0:
-                                            stack.append(0)
-                                            break
-                            else: #is composite?
-                                pass
+
+                            if n <= 1:
+                                stack.append(0)
+                            else:
+                                for p in P:
+                                    if p**2 > n: #prime
+                                        stack.append(not self.toggleFlag)
+                                        break
+                                    if n%p == 0: #composite
+                                        stack.append(self.toggleFlag)
+                                        break
+
                         elif tos == 3:
                             n = stack.pop() if stack else 0
                             P = getPrimes_parallelized()
@@ -605,7 +604,15 @@ class Program:
                                         stack.append(p)
                                         break
                             else: #nth composite
-                                pass
+                                c = -1
+                                prevPrime = 0
+                                for p in P:
+                                    c += (p-prevPrime-1)
+                                    prevPrime = p
+                                    if c >= n+1:
+                                        stack.append(p-(c-n))
+                                        break
+                                    
                         elif tos == 4:
                             if not self.toggleFlag: #gcd
                                 pass
