@@ -571,15 +571,21 @@ class Program:
                         tos = stack.pop() if stack else 0
 
                         if tos == 0:
+                            n = stack.pop() if stack else 0
                             if not self.toggleFlag: #factorial
-                                pass
-                            else: #binomial
-                                pass
+                                stack.append(math.factorial(n))
+                            else: #gamma
+                                stack.append(math.gamma(n))
+                                
                         elif tos == 1:
+                            n = stack.pop() if stack else 0
                             if not self.toggleFlag: #sqrt
-                                pass
+                                stack.append(math.sqrt(n))
                             else: #nth root
-                                pass
+                                r = (stack.pop() if stack else 0)**(1/n)
+                                if r.is_integer(): r = int(r)
+                                stack.append(r)
+                                
                         elif tos == 2:
                             n = stack.pop() if stack else 0
                             P = getPrimes_parallelized()
@@ -614,24 +620,57 @@ class Program:
                                         break
                                     
                         elif tos == 4:
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
+                            g = gcd(a,b)
                             if not self.toggleFlag: #gcd
-                                pass
+                                stack.append(g)
                             else: #lcm
-                                pass
+                                L = a*b/g
+                                if L.is_integer(): L = int(L)
+                                stack.append(L)
+                                
                         elif tos == 5:
+                            mean = sum(stack)/len(stack) if stack else 0
                             if not self.toggleFlag: #mean
-                                pass
+                                stack.clear()
+                                stack.append(mean)
                             else: #standard deviation
-                                pass
+                                total = 0
+                                for s in stack:
+                                    total += (s-mean)**2
+                                stack.append(math.sqrt(total)/len(stack) if stack else 0)
+                                
                         elif tos == 6:
-                            if not self.toggleFlag: #complex conjugate
+                            if not self.toggleFlag: #binomial (nCr)
                                 pass
-                            else: #?
+                            else: #nPr
                                 pass
+                            
                         elif tos == 7:
+                            n = complex(stack.pop() if stack else 0)
+                            if not self.toggleFlag: #pushes real, imag
+                                stack.append(n.real)
+                                stack.append(n.imag)
+                            else: #complex conjugate
+                                stack.append(n.conjugate())
+                                
+                        elif tos == 8:
+                            if not self.toggleFlag: #2D distance
+                                n = 2
+                            else: #N-d distance
+                                n = stack.pop() if stack else 0
+                                
+                            if not n:
+                                stack.append(0)
+                            else:
+                                x = [stack.pop() if stack else 0 for i in range(2*n)]
+                                stack.append(math.sqrt(sum([(x[i]-x[i+n])**2 for i in range(n)])))
+                                
+                        elif tos == 9:
                             if not self.toggleFlag: #nth permutation
                                 pass
-                            else: #is composite?
+                            else: #?
                                 pass
 
                     elif self.currChar == "M": #STRING
@@ -847,6 +886,11 @@ def getPrimes_parallelized(): #uses sieve of Sundaram
                 P.append([2*(i+i*i), i])
                 P.sort()
             i += 1
+
+def gcd(a,b):
+    while 1:
+        a,b = b,a%b
+        if b == 0: return a
 
 if file:
     if debug:
