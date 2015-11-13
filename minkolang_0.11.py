@@ -179,6 +179,21 @@ class Program:
                                              self.velocity[1],
                                              self.velocity[2]]
 
+                    elif self.currChar in "!?@&":
+                        movedir = "jump"
+                        if self.currChar == "!":
+                            arg2 = 1
+                        else:
+                            tos = stack.pop() if stack else 0
+                            if self.currChar == "?" and tos:
+                                arg2 = 1
+                            elif self.currChar == "@":
+                                arg2 = tos
+                            elif self.currChar == "&" and (stack.pop() if stack else 0):
+                                arg2 = tos
+                            else:
+                                movedir = ""
+
                     elif self.currChar == "K":
                         n = 3 + self.toggleFlag
                         direc = random.randint(0,n)
@@ -201,6 +216,14 @@ class Program:
                         stack.append(10)
                     elif self.currChar == "j":
                         stack.append(1j)
+
+                    elif self.currChar == "L":
+                        s = stack.pop() if stack and self.toggleFlag else 1
+                        b = stack.pop() if stack else 0
+                        a = stack.pop() if stack else 0
+                        while a <= b:
+                            stack.append(a)
+                            a += s
 
                     elif self.currChar in "hH": #random number
                         if self.currChar == "h":
@@ -263,6 +286,12 @@ class Program:
                         else:
                             stack.extend(result)
 
+                    elif self.currChar == "Y":
+                        x = stack.pop() if stack else 0
+                        b = stack.pop() if stack else 0
+                        a = stack.pop() if stack else 0
+                        stack.append(int(a<=x<=b) if not self.toggleFlag else int(a<x<b))
+
                     elif self.currChar in "~,": #negation and not
                         b = stack.pop() if stack else 0
 
@@ -271,20 +300,8 @@ class Program:
                         elif self.currChar == ",":
                             stack.append(int(not b if not self.toggleFlag else bool(b)))
 
-                    elif self.currChar in "!?@&":
-                        movedir = "jump"
-                        if self.currChar == "!":
-                            arg2 = 1
-                        else:
-                            tos = stack.pop() if stack else 0
-                            if self.currChar == "?" and tos:
-                                arg2 = 1
-                            elif self.currChar == "@":
-                                arg2 = tos
-                            elif self.currChar == "&" and (stack.pop() if stack else 0):
-                                arg2 = tos
-                            else:
-                                movedir = ""
+                    elif self.currChar == "y":
+                        stack.append(min(stack) if not self.toggleFlag else max(stack))
 
                     elif self.currChar in "no": #input
                         if self.currChar == "n":
