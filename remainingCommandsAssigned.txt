@@ -1,8 +1,10 @@
-C comment
 e 
 E 
 J Matrices
-t ternary; <0/1>t...t...t; $t pops n and does that many where normal ternary is 1
+P Itertools
+Q
+U
+W
 Z String
 
 STRING
@@ -15,16 +17,6 @@ STRING
 -replace one/all instance[s] of x
 -base conversion?
 
-MATH
--factorial, gamma
--sqrt, nth root
--is prime, nth prime
--gcd, lcm
--binomial (nCr), nPr
--mean, standard deviation
--real and imag, complex conjugate
--distance, N-d distance
-
 ITERTOOLS
 -nth permutation
 -nth combination, nth combination w/ replacement
@@ -36,12 +28,3 @@ MATRICES
 -row sums
 -column sums
 -determinant
-
-TRIG
--pi, e
--radians, degrees
--sin, arcsin
--cos, arccos
--tan, arctan
--atan2, hypotenuse
--angle diff (on angles, on coordinates)

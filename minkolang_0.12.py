@@ -7,7 +7,7 @@ from copy import deepcopy
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.11.py", "0$I2&N.\"j\"o-$-dr=,*!", "vv^^v^^^"]
+    sys.argv = ["minkolang_0.11.py", "o\"`\"-n+2%t\"dark\"t\"light\"t$O.", "c2"]
     debug = 1
     numSteps = 100
 
@@ -58,6 +58,8 @@ class Program:
         self.oldToggle = 0
         self.fallFlag = 0
         self.stuckFlag = 0
+        self.ignoreFlag = ""
+        self.ternaryFlag = ""
         
         self.bounds = [[0,max([ max(map(len,layer)) for layer in self.code])],
                        [0,max(map(len,self.code))],
@@ -98,7 +100,7 @@ class Program:
                 self.strMode = not self.strMode
 
                 if not self.strMode:
-                    stack.extend(list(map(ord,self.strLiteral[::-1])))
+                    if not self.ignoreFlag: stack.extend(list(map(ord,self.strLiteral[::-1])))
                     self.strLiteral = ""
                     
             if self.currChar == "'" and not self.strMode:
@@ -124,11 +126,11 @@ class Program:
                             except ValueError:
                                 pass
 
-                    stack.append(result)
+                    if not self.ignoreFlag: stack.append(result)
                     self.numLiteral = ""
 
             if self.currChar not in "'\"":
-                if not self.strMode and not self.numMode:
+                if not self.strMode and not self.numMode and not self.ignoreFlag:
 
                     if self.currChar != " " and not self.fallable and not self.fallFlag:
                         self.fallable = 1
@@ -148,6 +150,9 @@ class Program:
                             self.stuckFlag = 1
                         else:
                             self.toggleFlag = 1
+
+                    elif self.currChar == "C": #comments
+                        self.ignoreFlag = " C"
 
                     elif self.currChar == "V":
                         if self.fallFlag:
@@ -848,6 +853,24 @@ class Program:
                             jx = stack.pop() if stack else 0
                             arg2[0] = [jx,jy,jz]
                             for j in range(3): arg2[0][j] -= arg2[1][j]
+
+                    elif self.currChar == "t": #ternary
+##                        if debug: print("ternaryFlag: %s" % self.ternaryFlag)
+                        if not self.ternaryFlag:
+                            if (stack.pop() if stack else 0) == 0:
+                                self.ternaryFlag = "t0"
+                            else:
+                                self.ignoreFlag = " t1"
+                                self.ternaryFlag = "t1"
+                        else:
+                            if self.ternaryFlag == "t1":
+                                self.ternaryFlag = "t2"
+                            elif self.ternaryFlag == "t2":
+                                self.ternaryFlag = ""
+                            elif self.ternaryFlag == "t0":
+                                self.ternaryFlag = ""
+                                self.ignoreFlag = " t0"
+                        if debug: print(" ternaryFlag: %s" % self.ternaryFlag)
                             
                     elif self.currChar in "()": #while loop
                         if self.currChar == "(":
@@ -886,18 +909,21 @@ class Program:
                             iters = stack.pop() if stack else 0                        
                             tos = stack.pop() if stack and self.toggleFlag else 0
 
-                            newstack = stack[-tos:]
-                            self.loops.append(["for",
-                                               self.position,
-                                               self.velocity,
-                                               newstack,
-                                               0,
-                                               iters])
-                            
-                            if self.toggleFlag:
-                                for n in newstack: stack.pop()
+                            if iters > 0:
+                                newstack = stack[-tos:]
+                                self.loops.append(["for",
+                                                   self.position,
+                                                   self.velocity,
+                                                   newstack,
+                                                   0,
+                                                   iters])
+                                
+                                if self.toggleFlag:
+                                    for n in newstack: stack.pop()
+                                else:
+                                    stack.clear()
                             else:
-                                stack.clear()
+                                self.ignoreFlag = " ]"
                             
                         elif self.currChar == "]":
                             if self.loops[-1][0] != "for":
@@ -952,11 +978,22 @@ class Program:
 
                     else:
                         pass
-                else: #if in string or number mode
+                else: #if in string or number mode or ignoreFlag is set
                     if self.strMode:
                         self.strLiteral += self.currChar
                     elif self.numMode:
                         self.numLiteral += self.currChar
+
+                    if self.ignoreFlag:
+                        if debug: print("ignoreFlag: %s" % self.ignoreFlag)
+                        if self.ignoreFlag[0] == " ":
+                            self.ignoreFlag = self.ignoreFlag[1:]
+                        elif self.currChar == self.ignoreFlag[0] and not self.strMode and not self.numMode:
+                            if self.ignoreFlag == "t0":
+                                self.ternaryFlag = ""
+                            elif self.ignoreFlag == "t1":
+                                self.ternaryFlag = "t1"
+                            self.ignoreFlag = ""
 
             if self.toggleFlag and self.currChar != "$" and not self.stuckFlag: self.toggleFlag = 0
 
@@ -989,10 +1026,10 @@ class Program:
         if direction in ["teleport","wormhole"]:
             self.position, self.velocity = arg2
 
-        if debug: print("Old position:",self.position)
+##        if debug: print("Old position:",self.position)
         if direction != "wormhole":
             self.position = [a+b for a,b in zip(self.position, self.velocity)]
-        if debug: print("New position:",self.position)
+##        if debug: print("New position:",self.position)
 
         
         for i in range(3):
@@ -1000,7 +1037,7 @@ class Program:
                 self.position[i] += (self.bounds[i][1]-self.bounds[i][0])
             while self.position[i] >= self.bounds[i][1]:
                 self.position[i] -= (self.bounds[i][1]-self.bounds[i][0])
-        if debug: print("New position:",self.position)
+##        if debug: print("New position:",self.position)
 
         if direction == "jump":
             self.velocity = [bool(v)*int(copysign(1,v)) for v in self.velocity] #resets after a jump
