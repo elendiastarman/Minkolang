@@ -700,8 +700,9 @@ class Program:
                             stack.append(total)
                             
                         elif tos == 10:
-                            if not self.toggleFlag: #?
-                                pass
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #exp
+                                stack.append(math.exp(n))
                             else: #?
                                 pass
 
@@ -712,45 +713,82 @@ class Program:
                             stack.append(math.pi if not self.toggleFlag else math.e)
 
                         elif tos == 1:
+                            n = stack.pop() if stack else 0
                             if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                                stack.append(n*math.pi/180)
+                            else: #convert to degrees
+                                stack.append(n*180/math.pi)
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                        elif tos == 2:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #sine
+                                stack.append(math.sin(n))
+                            else: #arcsine
+                                stack.append(math.asin(n))
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                        elif tos == 3:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #cosine
+                                stack.append(math.cos(n))
+                            else: #arccosine
+                                stack.append(math.acos(n))
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                        elif tos == 4:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #tangent
+                                stack.append(math.tan(n))
+                            else: #arctangent
+                                stack.append(math.atan(n))
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                        elif tos == 5:
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+                            
+                            if not self.toggleFlag: #atan2
+                                stack.append(math.atan2(y,x))
+                            else: #hypotenuse
+                                stack.append(math.hypot(x,y))
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
-                                pass
-                            else: #degrees
-                                pass
+                        elif tos == 6:
+                            ##using http://stackoverflow.com/a/7869457/1473772
+                            if not self.toggleFlag: #angle diff (angles)
+                                ang2 = stack.pop() if stack else 0
+                                ang1 = stack.pop() if stack else 0
+                                stack.append((ang2 - ang1 + 180) % 360 - 180)
+                            else: #angle diff (coords)
+                                y2 = stack.pop() if stack else 0
+                                x2 = stack.pop() if stack else 0
+                                y1 = stack.pop() if stack else 0
+                                x1 = stack.pop() if stack else 0
+                                ang1 = math.atan2(y1,x1)
+                                ang2 = math.atan2(y2,x2)
+                                stack.append((ang2 - ang1 + math.pi) % (2*math.pi) - math.pi)
 
-                        elif tos == 1:
-                            if not self.toggleFlag: #convert to radians
+                        elif tos == 7:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #hyperbolic sine
+                                stack.append(math.sinh(n))
+                            else: #hyperbolic arcsine
+                                stack.append(math.asinh(n))
+
+                        elif tos == 8:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #hyperbolic cosine
+                                stack.append(math.cosh(n))
+                            else: #hyperbolic arccosine
+                                stack.append(math.acosh(n))
+
+                        elif tos == 9:
+                            n = stack.pop() if stack else 0
+                            if not self.toggleFlag: #hyperbolic tangent
+                                stack.append(math.tanh(n))
+                            else: #hyperbolic arctangent
+                                stack.append(math.atanh(n))
+
+                        elif tos == 10:
+                            if not self.toggleFlag: #?
                                 pass
-                            else: #degrees
+                            else: #?
                                 pass
 
                     elif self.currChar == "Z": #STRING
