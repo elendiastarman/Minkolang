@@ -1,35 +1,35 @@
 C comment
 e 
 E 
-f jumps back to where F was used last
-F starts gosub and jumps to x,y ($F is 3D)
-j Pushes sqrt(-1)
 J Matrices
-L Range from a to b ($L pops s for step too)
-M Math
 t ternary; <0/1>t...t...t; $t pops n and does that many where normal ternary is 1
-T Trig
-y minimum, $y maximum
-Y in between; abxY == a <= x <= b ($Y is exclusive; a < x < b)
-z get value from register ($z puts value in register)
 Z String
 
 STRING
--lowercase, uppercase, switch case
+-lowercase, uppercase
+-switch case
 -convert number to string
 -count instances of x
 -find instance[s] of x
 -remove one/all instance[s] of x
 -replace one/all instance[s] of x
+-base conversion?
 
 MATH
--factorial, binomial
+-factorial, gamma
 -sqrt, nth root
 -is prime, nth prime
 -gcd, lcm
+-binomial (nCr), nPr
 -mean, standard deviation
--complex conjugate
+-real and imag, complex conjugate
+-distance, N-d distance
+
+ITERTOOLS
 -nth permutation
+-nth combination, nth combination w/ replacement
+-cartesian product
+-etc
 
 MATRICES
 -transpose
@@ -39,7 +39,9 @@ MATRICES
 
 TRIG
 -pi, e
+-radians, degrees
 -sin, arcsin
 -cos, arccos
 -tan, arctan
--atan2
+-atan2, hypotenuse
+-angle diff (on angles, on coordinates)
