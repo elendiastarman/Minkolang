@@ -907,17 +907,18 @@ class Program:
 
                         elif tos == 5:
                             if not self.toggleFlag: #convert number to string
-                                stack.extend(map(ord,str(stack.pop() if stack else 0)))
+                                strnum = list(map(ord,str(stack.pop() if stack else 0)))
+                                stack.extend(strnum[::-1])
                             else: #convert string to number
-                                numstr = ''.join(map(chr,stack))
+                                numstr = ''.join(map(chr,stack))[::-1]
                                 try:
-                                    num = int(part)
+                                    num = int(numstr)
                                 except ValueError:
                                     try:
-                                        num = float(part)
+                                        num = float(numstr)
                                     except ValueError:
                                         try:
-                                            num = complex(part)
+                                            num = complex(numstr)
                                         except ValueError:
                                             num = 0
                                 stack.clear()
@@ -955,7 +956,7 @@ class Program:
                                     stack.append(0)
 
                         elif tos == 9:
-                            if not self.toggleFlag: #?
+                            if not self.toggleFlag: #base conversion?
                                 pass
                             else:
                                 pass
