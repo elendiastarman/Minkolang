@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import math
+import cmath
 import random
 from copy import deepcopy
 
@@ -60,6 +61,7 @@ class Program:
         self.stuckFlag = 0
         self.ignoreFlag = ""
         self.ternaryFlag = ""
+        self.escapeFlag = 0
         
         self.bounds = [[0,max([ max(map(len,layer)) for layer in self.code])],
                        [0,max(map(len,self.code))],
@@ -98,10 +100,13 @@ class Program:
             if self.currChar == '"' and not self.numMode:
                 self.fallable = not self.fallable
                 self.strMode = not self.strMode
+                if not self.escapeFlag: self.escapeFlag = self.toggleFlag
 
                 if not self.strMode:
+                    if self.escapeFlag: self.strLiteral = bytes(self.strLiteral, "utf-8").decode("unicode_escape")
                     if not self.ignoreFlag: stack.extend(list(map(ord,self.strLiteral[::-1])))
                     self.strLiteral = ""
+                    self.escapeFlag = 0
                     
             if self.currChar == "'" and not self.strMode:
                 self.fallable = not self.fallable
@@ -435,13 +440,24 @@ class Program:
                         arg2 = [[nx,ny,nz],self.velocity]
 
                     elif self.currChar in "gG": #stack index/insert
-                        tos = stack.pop() if stack else 0
-
-                        if self.currChar == "g" and stack:
-                            stack.append(stack.pop(tos))
-                        elif self.currChar == "G" and stack:
-                            toput = stack.pop() if stack else 0
-                            stack.insert(tos, toput)
+                        if not self.toggleFlag:
+                            n = stack.pop() if stack else 0
+                            if self.currChar == "g" and stack:
+                                stack.append(stack.pop(n))
+                            elif self.currChar == "G" and stack:
+                                toput = stack.pop() if stack else 0
+                                stack.insert(n, toput)
+                        else:
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
+                            if self.currChar == "g" and stack:
+                                newstack = stack[a:b]
+                                for k in newstack: stack.pop(a)
+                                stack.extend(newstack)
+                            elif self.currChar == "G" and stack:
+                                newstack = stack[b:-a]
+                                for k in newstack: stack.pop(b)
+                                stack.extend(newstack)
 
                     elif self.currChar == "c": #stack copy/slice
                         tos = stack.pop() if stack else 0
@@ -732,10 +748,17 @@ class Program:
                             
                         elif tos == 10:
                             n = stack.pop() if stack else 0
-                            if not self.toggleFlag: #exp
-                                stack.append(math.exp(n))
-                            else: #?
-                                pass
+                            if not self.toggleFlag: #log
+                                try:
+                                    stack.append(math.log(n))
+                                except ValueError:
+                                    stack.append(cmath.log(n))
+                            else: #log_n
+                                b = stack.pop() if stack else 0
+                                try:
+                                    stack.append(math.log(n,b))
+                                except ValueError:
+                                    stack.append(cmath.log(n,b))
 
                     elif self.currChar == "T": #TRIG
                         tos = stack.pop() if stack else 0
