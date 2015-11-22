@@ -870,9 +870,95 @@ class Program:
                             else: #?
                                 pass
 
-                    elif self.currChar == "Z": #STRING
+                    elif self.currChar == "Z": #LISTS/STRINGS
                         tos = stack.pop() if stack else 0
-                        pass
+
+                        if tos == 1:
+                            if not self.toggleFlag: #count single item
+                                a = stack.pop() if stack else 0
+                                stack.append(stack.count(a))
+                            else: #count multi item
+                                a = stack.pop() if stack else 0
+                                needle = stack[-a:]
+                                haystack = stack[:-a]
+                                count = 0
+                                for i in range(len(haystack)-len(needle)):
+                                    if haystack[i:i+len(needle)] == needle:
+                                        count += 1
+                                stack.append(count)
+
+                        elif tos == 2:
+                            if not self.toggleFlag: #find one
+                                pass
+                            else: #find all
+                                pass
+
+                        elif tos == 3:
+                            if not self.toggleFlag: #remove all
+                                pass
+                            else: #remove one
+                                pass
+
+                        elif tos == 4:
+                            if not self.toggleFlag: #replace all
+                                pass
+                            else: #replace one
+                                pass
+
+                        elif tos == 5:
+                            if not self.toggleFlag: #convert number to string
+                                stack.extend(map(ord,str(stack.pop() if stack else 0)))
+                            else: #convert string to number
+                                numstr = ''.join(map(chr,stack))
+                                try:
+                                    num = int(part)
+                                except ValueError:
+                                    try:
+                                        num = float(part)
+                                    except ValueError:
+                                        try:
+                                            num = complex(part)
+                                        except ValueError:
+                                            num = 0
+                                stack.clear()
+                                stack.append(num)
+
+                        elif tos == 6:
+                            if not self.toggleFlag: #lowercase
+                                for i in range(len(stack)):
+                                    if 65 <= stack[i] <= 90: stack[i] += 32
+                            else: #uppercase
+                                for i in range(len(stack)):
+                                    if 97 <= stack[i] <= 122: stack[i] -= 32
+
+                        elif tos == 7:
+                            if not self.toggleFlag: #is alphanumeric?
+                                try:
+                                    stack.append(''.join(map(chr,stack)).isalnum())
+                                except ValueError:
+                                    stack.append(0)
+                            else: #switch case
+                                for i in range(len(stack)):
+                                    if 65 <= stack[i] <= 90: stack[i] += 32
+                                    elif 97 <= stack[i] <= 122: stack[i] -= 32
+
+                        elif tos == 8:
+                            if not self.toggleFlag: #is alpha?
+                                try:
+                                    stack.append(''.join(map(chr,stack)).isalpha())
+                                except ValueError:
+                                    stack.append(0)
+                            else: #is decimal?
+                                try:
+                                    stack.append(''.join(map(chr,stack)).isdecimal())
+                                except ValueError:
+                                    stack.append(0)
+
+                        elif tos == 9:
+                            if not self.toggleFlag: #?
+                                pass
+                            else:
+                                pass
 
                     elif self.currChar == "P": #ITERTOOLS/MATRICES
                         tos = stack.pop() if stack else 0
