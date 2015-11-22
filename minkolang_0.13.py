@@ -874,13 +874,33 @@ class Program:
                         tos = stack.pop() if stack else 0
                         pass
 
-                    elif self.currChar == "P": #ITERTOOLS
+                    elif self.currChar == "P": #ITERTOOLS/MATRICES
                         tos = stack.pop() if stack else 0
                         pass
 
-                    elif self.currChar == "J": #MATRICES
+                    elif self.currChar == "J": #BINARY
                         tos = stack.pop() if stack else 0
-                        pass
+                        
+                        if tos < 6: #and,or,xor,nand,nor,xnor
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
+                            if tos == 0: result = a&b
+                            elif tos == 1: result = a|b
+                            elif tos == 2: result = a^b
+                            elif tos == 3: result = ~(a&b)
+                            elif tos == 4: result = ~(a|b)
+                            elif tos == 5: result = ~(a^b)
+                        elif tos == 6: result = ~(stack.pop() if stack else 0) #complement
+                        elif tos == 7: #if/not if
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
+                            result = (b if a else 1) if not self.toggleFlag else (b if not a else 1)
+                        elif tos == 8 or tos == 9: #bitshift left/right
+                            b = stack.pop() if stack and self.toggleFlag else 1
+                            a = stack.pop() if stack else 0
+                            result = (a << b) if tos == 8 else (a >> b)
+                        
+                        stack.append(result)
 
                     elif self.currChar == "k": #break
                         if self.loops:
