@@ -84,6 +84,7 @@ class Program:
         self.stopNow = False
         self.isDone = False
         self.errorType = ""
+        self.caught = 0
 
     def runCatch(self, steps=-1):
         self.errorType = ""
@@ -92,6 +93,21 @@ class Program:
         except Exception as e:
             self.errorType = e.args[0]
 
+            tempPosition = self.position
+            tempVelocity = self.velocity
+            tempCurrChar = self.currChar
+
+            self.move()
+            self.getCurrent()
+
+            if self.currChar == "E":
+                self.caught = 1
+                self.run(self.steps)
+            else:
+                self.position = tempPosition
+                self.velocity = tempVelocity
+                self.currChar = tempCurrChar
+
     def run(self, steps=-1): #steps = -1 for run-until-halt
         self.stopNow = False
         self.codeChanged = 0
@@ -99,6 +115,7 @@ class Program:
         
         while steps != 0 and self.stopNow == False and not self.isDone:
             steps -= 1
+            self.steps = steps
             self.getCurrent()
             movedir = ""
             arg2 = None
@@ -165,6 +182,9 @@ class Program:
                             self.toggleFlag = 1
                     elif self.currChar == "e": #throw exception
                         raise Exception("'e'")
+                    elif self.currChar == "E":
+                        stack.append(self.caught)
+                        self.caught = 0
 
                     elif self.currChar == "C": #comments
                         self.ignoreFlag = " C"
