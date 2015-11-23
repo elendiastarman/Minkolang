@@ -1,21 +1,7 @@
-e 
-E 
-J Matrices
-P Itertools
+P Itertools/Matrices
 Q
 U
 W
-Z String
-
-STRING
--lowercase, uppercase
--switch case
--convert number to string
--count instances of x
--find instance[s] of x
--remove one/all instance[s] of x
--replace one/all instance[s] of x
--base conversion?
 
 ITERTOOLS
 -nth permutation

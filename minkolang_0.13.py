@@ -893,39 +893,74 @@ class Program:
                     elif self.currChar == "Z": #LISTS/STRINGS
                         tos = stack.pop() if stack else 0
 
-                        if tos == 1:
+                        if tos == 0:
                             if not self.toggleFlag: #count single item
                                 a = stack.pop() if stack else 0
                                 stack.append(stack.count(a))
                             else: #count multi item
                                 a = stack.pop() if stack else 0
                                 needle = stack[-a:]
-                                haystack = stack[:-a]
+                                for k in needle: stack.pop()
                                 count = 0
-                                for i in range(len(haystack)-len(needle)):
-                                    if haystack[i:i+len(needle)] == needle:
+                                for i in range(len(stack)-len(needle)):
+                                    if stack[i:i+len(needle)] == needle:
                                         count += 1
                                 stack.append(count)
 
-                        elif tos == 2:
-                            if not self.toggleFlag: #find one
-                                pass
-                            else: #find all
-                                pass
+                        elif tos == 1 or tos == 2:
+                            if not self.toggleFlag: #find [first] single item
+                                needle = [stack[-1] if stack else 0]
+                            else: #find [first] multi item
+                                needle = stack[-(stack.pop() if stack else 0):]
+                            for k in needle: stack.pop()
 
-                        elif tos == 3:
-                            if not self.toggleFlag: #remove all
-                                pass
-                            else: #remove one
-                                pass
+                            count = 0
+                            for i in range(len(stack)-len(needle)):
+                                if stack[i:i+len(needle)] == needle:
+                                    stack.append(i)
+                                    count += 1
+                                    if tos == 1: break
+                                    
+                            if tos == 2: stack.append(count)
 
-                        elif tos == 4:
-                            if not self.toggleFlag: #replace all
-                                pass
-                            else: #replace one
-                                pass
+                        elif tos == 3 or tos == 4:
+                            if not self.toggleFlag: #remove [first] single item
+                                needle = [stack[-1] if stack else 0]
+                            else: #remove [first] multi item
+                                needle = stack[-(stack.pop() if stack else 0):]
+                            for k in needle: stack.pop()
+
+                            i = 0
+                            while i < len(stack)-len(needle):
+                                if stack[i:i+len(needle)] == needle:
+                                    for k in needle: stack.pop(i)
+                                    if tos == 3: break
+                                i += 1
 
                         elif tos == 5:
+                            b = stack.pop() if stack else 0
+                            a = stack.pop() if stack else 0
+                            B = stack[-b:]
+                            A = stack[-b-a:-b]
+                            for k in A+B: stack.pop()
+
+                            newstack = []
+                            i = 0
+                            while i < len(stack):
+                                if stack[i:i+len(A)] == A:
+                                    newstack.extend(B)
+                                    i += len(A)-1
+                                    if self.toggleFlag: #replace only once
+                                        newstack.extend(stack[i+1:])
+                                        break
+                                else:
+                                    newstack.append(stack[i])
+                                i += 1
+
+                            stack.clear()
+                            stack.extend(newstack)
+
+                        elif tos == 6:
                             if not self.toggleFlag: #convert number to string
                                 strnum = list(map(ord,str(stack.pop() if stack else 0)))
                                 stack.extend(strnum[::-1])
@@ -944,7 +979,7 @@ class Program:
                                 stack.clear()
                                 stack.append(num)
 
-                        elif tos == 6:
+                        elif tos == 7:
                             if not self.toggleFlag: #lowercase
                                 for i in range(len(stack)):
                                     if 65 <= stack[i] <= 90: stack[i] += 32
@@ -952,7 +987,7 @@ class Program:
                                 for i in range(len(stack)):
                                     if 97 <= stack[i] <= 122: stack[i] -= 32
 
-                        elif tos == 7:
+                        elif tos == 8:
                             if not self.toggleFlag: #is alphanumeric?
                                 try:
                                     stack.append(''.join(map(chr,stack)).isalnum())
@@ -963,7 +998,7 @@ class Program:
                                     if 65 <= stack[i] <= 90: stack[i] += 32
                                     elif 97 <= stack[i] <= 122: stack[i] -= 32
 
-                        elif tos == 8:
+                        elif tos == 9:
                             if not self.toggleFlag: #is alpha?
                                 try:
                                     stack.append(''.join(map(chr,stack)).isalpha())
@@ -975,11 +1010,11 @@ class Program:
                                 except ValueError:
                                     stack.append(0)
 
-                        elif tos == 9:
-                            if not self.toggleFlag: #base conversion?
-                                pass
-                            else:
-                                pass
+                        elif tos == 10:
+                            if not self.toggleFlag: #alphabet
+                                stack.extend((list(range(65,91))+list(range(97,123)))[::-1])
+                            else: #numbers
+                                stack.extend(list(range(48,58))[::-1])
 
                     elif self.currChar == "P": #ITERTOOLS/MATRICES
                         tos = stack.pop() if stack else 0
