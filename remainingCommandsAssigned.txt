@@ -4,13 +4,14 @@ U
 W
 
 ITERTOOLS
+-cartesian product
 -nth permutation
 -nth combination, nth combination w/ replacement
--cartesian product
--etc
 
 MATRICES
 -transpose
 -row sums
 -column sums
 -determinant
+-rotate/flip matrix
+-submatrix

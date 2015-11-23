@@ -577,21 +577,14 @@ class Program:
                         stack.extend(seen[::-1])
 
                     elif self.currChar == "m": #merge/interleave
-                        if not self.toggleFlag:
-                            L = len(stack)//2 + (len(stack)%2)
-                        else:
-                            tos = stack.pop() if stack else 0
-                            L = len(stack) - tos
-                            
-                        former, latter = stack[:L], stack[L:]
-                        stack.clear()
-                        
+                        k = stack.pop() if stack and self.toggleFlag else 2
                         newstack = []
-                        while former and latter:
-                            newstack.append(former.pop(0))
-                            newstack.append(latter.pop(0))
-                        newstack.extend(former)
+                        m = len(stack)//abs(k)
 
+                        if k < 0: k,m = m+1,-k
+                        for i in range(k): newstack.extend(stack[i::k])
+
+                        stack.clear()
                         stack.extend(newstack)
 
                     elif self.currChar == "p": #code put
