@@ -9,7 +9,7 @@ from copy import deepcopy
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.14.py", "o\"`\"-n+2%t\"dark\"t\"light\"t$O.", "c2"]
+    sys.argv = ["minkolang_0.14.py", ".", "c2"]
     debug = 1
     numSteps = 100
 
@@ -1120,24 +1120,48 @@ class Program:
                             stack.extend(sums[::-1])
                             stack.append(len(sums))
 
-                        elif tos == 7: #Cartesian product
-                            if not self.toggleFlag: #all products
-                                pass
-                            else: #nth product
-                                pass
+                        elif tos == 7: #Determinant
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
 
-                        elif tos == 8: #Cartesian product
-                            if not self.toggleFlag: #all products
-                                pass
-                            else: #nth product
-                                pass
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
 
-                        elif tos == 9: #Cartesian product
-                            if not self.toggleFlag: #all products
-                                pass
-                            else: #nth product
-                                pass
+                            stack.append(determinant(array))
 
+                        elif tos == 8: #Matrix inverse
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
+                            invA = matrixInverse(array)
+
+                            for row in invA[::-1]: stack.extend(row[::-1])
+                            stack.append(len(invA[0]))
+                            stack.append(len(invA))
+
+                        elif tos == 9: #Submatrices
+                            if not self.toggleFlag: #contiguous
+                                y2 = stack.pop() if stack else 0
+                                x2 = stack.pop() if stack else 0
+                                y1 = stack.pop() if stack else 0
+                                x1 = stack.pop() if stack else 0
+                            else: #Minus a row and column
+                                b = stack.pop() if stack else 0
+                                a = stack.pop() if stack else 0
+                            
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+                            
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
+                            
+                            if not self.toggleFlag: #contiguous
+                                array2 = [row[x1:x2+1] for row in array[y1:y2+1]]
+                            else: #Minus a row and column
+                                array2 = [row[:a]+row[a+1:] for row in (array[:b]+array[b+1:])]
+                            
+                            for row in array2[::-1]: stack.extend(row[::-1])
+                            stack.append(len(array2[0]))
+                            stack.append(len(array2))
                         elif tos == 10: #Cartesian product
                             if not self.toggleFlag: #all products
                                 pass
@@ -1423,6 +1447,38 @@ def gcd(a,b):
     while 1:
         a,b = b,a%b
         if b == 0: return a
+
+def determinant(A):
+    if len(A) == 0: raise ValueError("Matrix must be non-empty")
+    if len(A) != len(A[0]): raise ValueError("Matrix must be square (it is %dx%d)" % (len(A),len(A[0])))
+
+    if len(A) == 1: return A[0][0]
+    
+    det = 0
+    for i in range(len(A[0])):
+        A2 = []
+        for j in range(1,len(A)):
+            A2.append(A[j][:i]+A[j][i+1:])
+        det += ((i%2)*2-1)*A[0][i]*determinant(A2)
+    return det
+
+def matrixInverse(A): #uses a very inefficient recursive algorithm
+    if len(A) == 0: raise ValueError("Matrix must be non-empty")
+    if len(A) != len(A[0]): raise ValueError("Matrix must be square (it is %dx%d)" % (len(A),len(A[0])))
+
+    if len(A) == 1: return A[0][0]
+    
+    C = [[0]*len(A) for x in range(len(A))]
+    det = determinant(A)
+    
+    for j in range(len(A)):
+        for i in range(len(A[0])):
+            A2 = []
+            for row in A[:j]+A[j+1:]:
+                A2.append(row[:i]+row[i+1:])
+            C[i][j] = ((i+j)%2*2-1)*determinant(A2)/det
+
+    return C
 
 if file:
     if debug:
