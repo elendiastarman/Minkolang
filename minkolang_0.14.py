@@ -1088,11 +1088,17 @@ class Program:
                             arrayT = [[array[j][i] for j in range(y)] for i in range(x)] #transpose
                             
                             if self.toggleFlag: #rotate too if desired
-                                array2 = array if k < 4 else arrayT
+                                array2,x,y = (array,x,y) if k < 4 else (arrayT,y,x)
                                 k %= 4
-                                array3 = []
+                                array3 = array2
                                 
-                                if k == 1: pass
+                                if k == 1:
+                                    array3 = [[array2[j][i] for j in range(y)[::-1]] for i in range(x)]
+                                elif k == 2:
+                                    array3 = [row[::-1] for row in array2[::-1]]
+                                elif k == 3:
+                                    array3 = [[array2[j][i] for j in range(y)] for i in range(x)[::-1]]
+                                
                             else:
                                 array3 = arrayT
 
