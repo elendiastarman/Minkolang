@@ -4,11 +4,12 @@ import json
 import math
 import cmath
 import random
+import itertools
 from copy import deepcopy
 
 debug = 0
 if "idlelib" in sys.modules:
-    sys.argv = ["minkolang_0.11.py", "o\"`\"-n+2%t\"dark\"t\"light\"t$O.", "c2"]
+    sys.argv = ["minkolang_0.14.py", "o\"`\"-n+2%t\"dark\"t\"light\"t$O.", "c2"]
     debug = 1
     numSteps = 100
 
@@ -581,8 +582,8 @@ class Program:
                         newstack = []
                         m = len(stack)//abs(k)
 
-                        if k < 0: k,m = m+1,-k
-                        for i in range(k): newstack.extend(stack[i::k])
+                        if k < 0: k,m = m,-k-1
+                        for i in range(m+1): newstack.extend(stack[i::m+1])
 
                         stack.clear()
                         stack.extend(newstack)
@@ -1011,7 +1012,86 @@ class Program:
 
                     elif self.currChar == "P": #ITERTOOLS/MATRICES
                         tos = stack.pop() if stack else 0
-                        pass
+
+                        if tos == 0 or tos == 1: #Cartesian product, [one/multi] iterable
+                            n = stack.pop() if stack and self.toggleFlag else 0
+                            r = stack.pop() if stack else 1 #repeats
+                            q = stack.pop() if stack and tos == 1 else 1
+                            ministacks = []
+
+                            for i in range(q):
+                                k = stack.pop() if stack else 0 #length of stack to pop
+                                ministacks.append(stack[-k:])
+                                for x in ministacks[-1]: stack.pop()
+                                
+                            prods = itertools.product(*ministacks, repeat=r)
+                            
+                            if not self.toggleFlag: #all products
+                                prods = list(prods)
+                                for p in prods[::-1]: stack.extend(p[::-1])
+                                stack.append(len(prods))
+                                stack.append(len(prods[0]))
+                            else: #nth product
+                                for x in range(n): p = next(prods)
+                                stack.extend(p[::-1])
+                                stack.append(len(p))
+
+                        elif tos == 2: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 3: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 4: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 5: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 6: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 7: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 8: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 9: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        elif tos == 10: #Cartesian product
+                            if not self.toggleFlag: #all products
+                                pass
+                            else: #nth product
+                                pass
+
+                        else:
+                            pass
 
                     elif self.currChar == "J": #BINARY
                         tos = stack.pop() if stack else 0
