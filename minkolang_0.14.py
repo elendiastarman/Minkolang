@@ -1106,11 +1106,19 @@ class Program:
                             stack.append(len(array3[0]))
                             stack.append(len(array3))
 
-                        elif tos == 6: #Cartesian product
-                            if not self.toggleFlag: #all products
-                                pass
-                            else: #nth product
-                                pass
+                        elif tos == 6: #Row/column sums
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
+                            
+                            if not self.toggleFlag: #rows
+                                sums = [sum(row) for row in array]
+                            else: #columns
+                                sums = [sum([array[j][i] for j in range(y)]) for i in range(x)]
+
+                            stack.extend(sums[::-1])
+                            stack.append(len(sums))
 
                         elif tos == 7: #Cartesian product
                             if not self.toggleFlag: #all products
