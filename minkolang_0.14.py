@@ -453,13 +453,13 @@ class Program:
                                 stack.extend([tos]*2)
                             elif self.currChar == "D":
                                 n = stack.pop() if stack else 0
-                                stack.extend([n]*(tos+1))
+                                stack.extend([n]*tos)
                         else:
                             if self.currChar == "d":
                                 stack.extend(stack)
                             elif self.currChar == "D":
                                 n = stack.pop() if stack else 0
-                                stack.extend(stack*n)
+                                stack.extend(stack*(n-1))
 
                     elif self.currChar == "z": #register
                         if self.toggleFlag:
@@ -795,9 +795,9 @@ class Program:
                             else: #log_n
                                 b = stack.pop() if stack else 0
                                 try:
-                                    stack.append(math.log(n,b))
+                                    stack.append(math.log(b,n))
                                 except ValueError:
-                                    stack.append(cmath.log(n,b))
+                                    stack.append(cmath.log(b,n))
 
                     elif self.currChar == "T": #TRIG
                         tos = stack.pop() if stack else 0
@@ -909,7 +909,7 @@ class Program:
                             for k in needle: stack.pop()
 
                             count = 0
-                            for i in range(len(stack)-len(needle)):
+                            for i in range(len(stack)-len(needle)+1):
                                 if stack[i:i+len(needle)] == needle:
                                     stack.append(i)
                                     count += 1
@@ -931,7 +931,7 @@ class Program:
                                     if tos == 3: break
                                 i += 1
 
-                        elif tos == 5:
+                        elif tos == 5: #replace
                             b = stack.pop() if stack else 0
                             a = stack.pop() if stack else 0
                             B = stack[-b:]
@@ -1010,74 +1010,39 @@ class Program:
                             else: #numbers
                                 stack.extend(list(range(48,58))[::-1])
 
-                    elif self.currChar == "P": #ITERTOOLS/MATRICES
+                    elif self.currChar == "P": #MATRICES
                         tos = stack.pop() if stack else 0
 
-                        if tos == 0 or tos == 1: #Cartesian product, [one/multi] iterable
-                            n = stack.pop() if stack and self.toggleFlag else 0
-                            r = stack.pop() if stack else 1 #repeats
-                            q = stack.pop() if stack and tos == 1 else 1
-                            ministacks = []
+                        if tos == 0: #matrix output
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+                            
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
 
-                            for i in range(q):
-                                k = stack.pop() if stack else 0 #length of stack to pop
-                                ministacks.append(stack[-k:])
-                                for x in ministacks[-1]: stack.pop()
+                            if not self.toggleFlag: #output as numbers
                                 
-                            prods = itertools.product(*ministacks, repeat=r)
-                            
-                            if not self.toggleFlag: #all products
-                                prods = list(prods)
-                                for prod in prods[::-1]:
-                                    stack.extend(prod[::-1])
-                                    stack.append(len(prod))
-                                stack.append(len(prods))
-                            else: #nth product
-                                for x in range(n): prod = next(prods)
-                                stack.extend(prod[::-1])
-                                stack.append(len(prod))
-
-                        elif tos == 2: #Permutations
-                            n = stack.pop() if stack and self.toggleFlag else 0
-                            k = stack.pop() if stack else 0
-                            newstack = stack[-k:]
-                            for x in newstack: stack.pop()
-                            
-                            if not self.toggleFlag: #all permutations
-                                perms = list(itertools.permutations(newstack))
-                                for perm in perms[::-1]:
-                                    stack.extend(perm[::-1])
-                                    stack.append(len(perm))
-                                stack.append(len(perms))
-                            else: #nth permutation
-                                perm = itertools.permutations(newstack,n)
-                                stack.extend(perm[::-1])
-                                stack.append(len(perm))
-
-                        elif tos == 3 or tos == 4: #Combinations without/with replacement
-                            n = stack.pop() if stack and self.toggleFlag else 0
-                            r = stack.pop() if stack else 0
-                            k = stack.pop() if stack else 0
-                            newstack = stack[-k:]
-                            for x in newstack: stack.pop()
-
-                            if tos == 3:
-                                comb_func = itertools.combinations
-                            elif tos == 4:
-                                comb_func = itertools.combinations_with_replacement
-
-                            combs = comb_func(newstack,r)
-                            
-                            if not self.toggleFlag: #all combinations
-                                combs = list(combs)
-                                for comb in combs[::-1]:
-                                    stack.extend(comb[::-1])
-                                    stack.append(len(comb))
-                                stack.append(len(combs))
-                            else: #nth combination
-                                for i in range(n): comb = next(combs)
-                                stack.extend(comb[::-1])
-                                stack.append(len(comb))
+                                for row in array:
+                                    line = ' '.join(map(str,row))
+                                    print(line, file=self.outfile)
+                                    self.output += line + '\n'
+                                    
+                            else: #output as characters
+                                for row in array:
+                                    for col in row:
+                                        char = ''
+                                        try:
+                                            char = chr(col)
+                                        except ValueError:
+                                            pass
+                                        print(char, end='', file=self.outfile)
+                                        self.output += char
+                                    print()
+                                    self.output += '\n'
+                                    
+                        elif tos == 1 or tos == 2: #matrix add, sub
+                            pass
+                        elif tos == 3 or tos == 4: #matrix mul, div
+                            pass
 
                         elif tos == 5: #Transpose/rotate/flip
                             k = stack.pop()%8 if stack and self.toggleFlag else 0
@@ -1170,6 +1135,75 @@ class Program:
 
                         else:
                             pass
+
+                    elif self.currChar == "Q": #ITERTOOLS/MISCELLANEOUS
+                        tos = stack.pop() if stack else 0
+
+                        if tos == 0 or tos == 1: #Cartesian product, [one/multi] iterable
+                            n = stack.pop() if stack and self.toggleFlag else 0
+                            r = stack.pop() if stack else 1 #repeats
+                            q = stack.pop() if stack and tos == 1 else 1
+                            ministacks = []
+
+                            for i in range(q):
+                                k = stack.pop() if stack else 0 #length of stack to pop
+                                ministacks.append(stack[-k:])
+                                for x in ministacks[-1]: stack.pop()
+                                
+                            prods = itertools.product(*ministacks, repeat=r)
+                            
+                            if not self.toggleFlag: #all products
+                                prods = list(prods)
+                                for prod in prods[::-1]:
+                                    stack.extend(prod[::-1])
+                                    stack.append(len(prod))
+                                stack.append(len(prods))
+                            else: #nth product
+                                for x in range(n): prod = next(prods)
+                                stack.extend(prod[::-1])
+                                stack.append(len(prod))
+
+                        elif tos == 2: #Permutations
+                            n = stack.pop() if stack and self.toggleFlag else 0
+                            k = stack.pop() if stack else 0
+                            newstack = stack[-k:]
+                            for x in newstack: stack.pop()
+                            
+                            if not self.toggleFlag: #all permutations
+                                perms = list(itertools.permutations(newstack))
+                                for perm in perms[::-1]:
+                                    stack.extend(perm[::-1])
+                                    stack.append(len(perm))
+                                stack.append(len(perms))
+                            else: #nth permutation
+                                perm = itertools.permutations(newstack,n)
+                                stack.extend(perm[::-1])
+                                stack.append(len(perm))
+
+                        elif tos == 3 or tos == 4: #Combinations without/with replacement
+                            n = stack.pop() if stack and self.toggleFlag else 0
+                            r = stack.pop() if stack else 0
+                            k = stack.pop() if stack else 0
+                            newstack = stack[-k:]
+                            for x in newstack: stack.pop()
+
+                            if tos == 3:
+                                comb_func = itertools.combinations
+                            elif tos == 4:
+                                comb_func = itertools.combinations_with_replacement
+
+                            combs = comb_func(newstack,r)
+                            
+                            if not self.toggleFlag: #all combinations
+                                combs = list(combs)
+                                for comb in combs[::-1]:
+                                    stack.extend(comb[::-1])
+                                    stack.append(len(comb))
+                                stack.append(len(combs))
+                            else: #nth combination
+                                for i in range(n): comb = next(combs)
+                                stack.extend(comb[::-1])
+                                stack.append(len(comb))
 
                     elif self.currChar == "J": #BINARY
                         tos = stack.pop() if stack else 0
