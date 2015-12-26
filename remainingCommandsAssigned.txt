@@ -1,17 +1,3 @@
-P Itertools/Matrices
 Q
 U
 W
-
-ITERTOOLS
--cartesian product
--nth permutation
--nth combination, nth combination w/ replacement
-
-MATRICES
--transpose
--row sums
--column sums
--determinant
--rotate/flip matrix
--submatrix
