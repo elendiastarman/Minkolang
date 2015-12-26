@@ -1199,6 +1199,29 @@ class Program:
                             stack.append(len(invA[0]))
                             stack.append(len(invA))
 
+                        elif tos == 9: #Scalar exponentiation
+                            n = stack.pop() if stack else 0
+                            y = stack.pop() if stack else 0
+                            x = stack.pop() if stack else 0
+                            if x != y: raise ValueError("Matrix must be square, not %dx%d"%(y,x))
+                            if type(n) != int: raise ValueError("Exponent must be integer, not %s"%n)
+                            
+                            array = [[(stack.pop() if stack else 0) for i in range(x)] for j in range(y)]
+                            tempA = [[int(i==j) for i in range(x)] for j in range(y)]
+
+                            if n < 0:
+                                array = matrixInverse(array)
+                                n = -n
+                            B = list(map(int,bin(n)[2:]))
+
+                            for b in B:
+                                tempA = matrixMult(tempA, tempA) #square first
+                                if b: tempA = matrixMult(tempA, array)
+
+                            for row in tempA[::-1]: stack.extend(row[::-1])
+                            stack.append(len(tempA[0]))
+                            stack.append(len(tempA))
+
                         elif tos == 11: #Row/column sums
                             y = stack.pop() if stack else 0
                             x = stack.pop() if stack else 0
@@ -1632,6 +1655,28 @@ def matrixInverse(A): #uses a very inefficient recursive algorithm
             C[i][j] = ((i+j)%2*2-1)*determinant(A2)/det
 
     return C
+
+def matrixMult(A,B):
+    if len(A)+len(B) == 0: raise ValueError("Matrices must be non-empty")
+    if len(A) != len(A[0]): raise ValueError("Matrix A must be square (it is %dx%d)" % (len(A),len(A[0])))
+    if len(B) != len(B[0]): raise ValueError("Matrix B must be square (it is %dx%d)" % (len(B),len(B[0])))
+
+    Ax = len(A[0])
+    Ay = len(A)
+    Bx = len(B[0])
+    By = len(B)
+
+    if Ax != By: raise ValueError("Dimension mismatch; cannot multiply matrices with dimensions %dx%d and %dx%d"%(Ay,Ax,By,Bx))
+
+    temp = []
+    for j in range(Ay):
+        row = []
+        for i in range(Bx):
+            s = [A[j][k]*B[k][i] for k in range(Ax)]
+            row.append(sum(s))
+        temp.append(row)
+        
+    return temp
 
 if file:
     if debug:
