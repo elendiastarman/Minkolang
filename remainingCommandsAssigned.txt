@@ -1,3 +1,2 @@
-Q
-U
-W
+U Base conversion
+W Strings
