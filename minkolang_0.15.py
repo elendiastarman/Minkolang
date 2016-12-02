@@ -1684,5 +1684,5 @@ if file:
         prog.run(numSteps)
 
     else:
-        Program(file, sys.argv[2]).run()
+        Program(file, sys.argv[2] if len(sys.argv) > 2 else "").run()
         print()
